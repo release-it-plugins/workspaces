@@ -1,5 +1,6 @@
 const path = require('path');
 const walkSync = require('walk-sync');
+const urlJoin = require('url-join');
 const { Plugin } = require('release-it');
 const { hasAccess, rejectAfter, parseVersion } = require('release-it/lib/util');
 const { npmTimeoutError, npmAuthError } = require('release-it/lib/errors');
@@ -115,6 +116,12 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       },
       () => []
     );
+  }
+
+  getReleaseUrl() {
+    const registry = this.getRegistry();
+    const baseUrl = registry !== NPM_DEFAULT_REGISTRY ? registry : NPM_BASE_URL;
+    return urlJoin(baseUrl, 'package', this.getName());
   }
 
   getRegistry() {
