@@ -23,7 +23,8 @@
     "serial": true
   },
   "dependencies": {
-    "release-it": "^13.0.2"
+    "release-it": "^13.0.2",
+    "walk-sync": "^2.0.2"
   },
   "devDependencies": {
     "ava": "^3.5.0",
