@@ -1,7 +1,6 @@
 const path = require('path');
 const walkSync = require('walk-sync');
-const urlJoin = require('url-join');
-const { hasAccess, rejectAfter, parseVersion } = require('release-it/lib/util');
+const { hasAccess, rejectAfter } = require('release-it/lib/util');
 const { npmTimeoutError, npmAuthError } = require('release-it/lib/errors');
 const prompts = require('release-it/lib/plugin/npm/prompts');
 const UpstreamPlugin = require('release-it/lib/plugin/npm/npm');
@@ -75,18 +74,16 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
   }
 
   async bump(version) {
+    // intentionally not calling super.bump here
+
     const task = () => {
-      Promise.all(
-        this.eachWorkspace(() => {
-          return this.exec(`npm version ${version} --no-git-tag-version`).catch(err => {
-            if (/version not changed/i.test(err)) {
-              this.log.warn(
-                `Did not update version in package.json, etc. (already at ${version}).`
-              );
-            }
-          });
-        })
-      );
+      return this.eachWorkspace(() => {
+        return this.exec(`npm version ${version} --no-git-tag-version`).catch(err => {
+          if (/version not changed/i.test(err)) {
+            this.log.warn(`Did not update version in package.json, etc. (already at ${version}).`);
+          }
+        });
+      });
     };
 
     const tag = this.options.tag || (await this.resolveTag(version));
@@ -95,6 +92,8 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
   }
 
   async publish({ otp = this.options.otp, otpCallback } = {}) {
+    // intentionally not calling super.publish here
+
     const { publishPath = '.', access } = this.options;
     const { name, private: isPrivate, tag = DEFAULT_TAG, isNewPackage } = this.getContext();
     const isScopedPkg = name.startsWith('@');
@@ -109,44 +108,43 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
       return noop;
     }
 
-    return Promise.all(
-      this.eachWorkspace(() => {
-        return this.exec(
+    return this.eachWorkspace(async () => {
+      try {
+        await this.exec(
           `npm publish ${publishPath} --tag ${tag} ${accessArg} ${otpArg} ${dryRunArg}`,
           { options }
-        )
-          .then(() => {
-            this.isReleased = true;
-          })
-          .catch(err => {
-            this.debug(err);
-            if (/one-time pass/.test(err)) {
-              if (otp != null) {
-                this.log.warn('The provided OTP is incorrect or has expired.');
-              }
-              if (otpCallback) {
-                return otpCallback(otp => this.publish({ otp, otpCallback }));
-              }
-            }
-            throw err;
-          });
-      })
-    );
+        );
+
+        this.isReleased = true;
+      } catch (err) {
+        this.debug(err);
+        if (/one-time pass/.test(err)) {
+          if (otp != null) {
+            this.log.warn('The provided OTP is incorrect or has expired.');
+          }
+          if (otpCallback) {
+            return otpCallback(otp => this.publish({ otp, otpCallback }));
+          }
+        }
+        throw err;
+      }
+    });
   }
 
   eachWorkspace(action) {
-    return this.getWorkspaceDirs().map(workspace => {
-      return new Promise(resolve => {
+    return Promise.all(
+      this.getWorkspaceDirs().map(async workspace => {
         let root = process.cwd();
 
-        process.chdir(workspace);
+        try {
+          process.chdir(workspace);
 
-        return action().then(() => {
+          return await action();
+        } finally {
           process.chdir(root);
-          resolve();
-        });
-      });
-    });
+        }
+      })
+    );
   }
 
   getWorkspaceDirs() {
