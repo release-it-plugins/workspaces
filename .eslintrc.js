@@ -12,4 +12,12 @@ module.exports = {
   rules: {
     'node/no-unpublished-require': 'off',
   },
+  overrides: [
+    {
+      files: ['jest.setup.js', '__tests__/**/*.js'],
+      env: {
+        jest: true,
+      },
+    },
+  ],
 };

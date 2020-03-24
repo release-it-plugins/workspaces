@@ -53,6 +53,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       private: isPrivate,
       publishConfig,
       workspaces: resolveWorkspaces(workspaces),
+      root: process.cwd(),
     });
 
     if (this.options.skipChecks) return;
@@ -213,12 +214,10 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   eachWorkspace(action) {
     return this.getWorkspaceDirs().map(workspace => {
       return new Promise(resolve => {
-        let root = process.cwd();
-
-        process.chdir(workspace);
+        process.chdir(path.dirname(workspace));
 
         return action().then(() => {
-          process.chdir(root);
+          process.chdir(this.getContext('root'));
           resolve();
         });
       });
@@ -228,6 +227,6 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   getWorkspaceDirs() {
     return walkSync('.', {
       globs: this.getContext('workspaces').map(glob => `${glob}/package.json`),
-    });
+    }).map(workspace => path.resolve(this.getContext('root'), workspace));
   }
 };
