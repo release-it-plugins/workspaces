@@ -1,19 +1,16 @@
 const path = require('path');
 const walkSync = require('walk-sync');
 const urlJoin = require('url-join');
-const { Plugin } = require('release-it');
 const { hasAccess, rejectAfter, parseVersion } = require('release-it/lib/util');
 const { npmTimeoutError, npmAuthError } = require('release-it/lib/errors');
 const prompts = require('release-it/lib/plugin/npm/prompts');
+const UpstreamPlugin = require('release-it/lib/plugin/npm/npm');
 
 const options = { write: false };
 
 const ROOT_MANIFEST_PATH = './package.json';
 const REGISTRY_TIMEOUT = 10000;
 const DEFAULT_TAG = 'latest';
-const DEFAULT_TAG_PRERELEASE = 'next';
-const NPM_BASE_URL = 'https://www.npmjs.org';
-const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org';
 
 const noop = Promise.resolve();
 
@@ -29,7 +26,7 @@ function resolveWorkspaces(workspaces) {
   );
 }
 
-module.exports = class YarnWorkspacesPlugin extends Plugin {
+module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
   static isEnabled(options) {
     return hasAccess(ROOT_MANIFEST_PATH) && options !== false;
   }
@@ -40,6 +37,10 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   }
 
   async init() {
+    // intentionally not calling super.init here:
+    //
+    // * avoid the `getLatestRegistryVersion` check
+
     const {
       name,
       version: latestVersion,
@@ -47,6 +48,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       publishConfig,
       workspaces,
     } = require(path.resolve(ROOT_MANIFEST_PATH));
+
     this.setContext({
       name,
       latestVersion,
@@ -69,84 +71,6 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
     if (!isAuthenticated) {
       throw new npmAuthError();
-    }
-  }
-
-  isRegistryUp() {
-    const registry = this.getRegistry();
-    const registryArg = registry !== NPM_DEFAULT_REGISTRY ? ` --registry ${registry}` : '';
-    return this.exec(`npm ping${registryArg}`).then(
-      () => true,
-      err => {
-        if (/code E40[04]|404.*(ping not found|No content for path)/.test(err)) {
-          this.log.warn('Ignoring unsupported `npm ping` command response.');
-          return true;
-        }
-        return false;
-      }
-    );
-  }
-
-  isAuthenticated() {
-    const registry = this.getRegistry();
-    const registryArg = registry !== NPM_DEFAULT_REGISTRY ? ` --registry ${registry}` : '';
-    return this.exec(`npm whoami${registryArg}`).then(
-      () => true,
-      err => {
-        this.debug(err);
-        if (/code E40[04]/.test(err)) {
-          this.log.warn('Ignoring unsupported `npm whoami` command response.');
-          return true;
-        }
-        return false;
-      }
-    );
-  }
-
-  getRegistryPreReleaseTags() {
-    return this.exec(`npm view ${this.getName()} dist-tags --json`, { options }).then(
-      output => {
-        try {
-          const tags = JSON.parse(output);
-          return Object.keys(tags).filter(tag => tag !== DEFAULT_TAG);
-        } catch (err) {
-          this.debug(err);
-          return [];
-        }
-      },
-      () => []
-    );
-  }
-
-  getReleaseUrl() {
-    const registry = this.getRegistry();
-    const baseUrl = registry !== NPM_DEFAULT_REGISTRY ? registry : NPM_BASE_URL;
-    return urlJoin(baseUrl, 'package', this.getName());
-  }
-
-  getRegistry() {
-    return this.getContext('publishConfig.registry') || NPM_DEFAULT_REGISTRY;
-  }
-
-  async guessPreReleaseTag() {
-    const [tag] = await this.getRegistryPreReleaseTags();
-    if (tag) {
-      return tag;
-    } else {
-      this.log.warn(
-        `Unable to get pre-release tag(s) from npm registry. Using "${DEFAULT_TAG_PRERELEASE}".`
-      );
-      return DEFAULT_TAG_PRERELEASE;
-    }
-  }
-
-  async resolveTag(version) {
-    const { tag } = this.options;
-    const { isPreRelease, preReleaseId } = parseVersion(version);
-    if (!isPreRelease) {
-      return DEFAULT_TAG;
-    } else {
-      return tag || preReleaseId || (await this.guessPreReleaseTag());
     }
   }
 
