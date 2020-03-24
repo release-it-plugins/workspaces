@@ -9,9 +9,6 @@ module.exports = {
   env: {
     node: true,
   },
-  rules: {
-    'node/no-unpublished-require': 'off',
-  },
   overrides: [
     {
       files: ['jest.setup.js', '__tests__/**/*.js'],
