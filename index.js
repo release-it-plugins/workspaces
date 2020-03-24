@@ -135,10 +135,8 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
   eachWorkspace(action) {
     return Promise.all(
       this.getWorkspaceDirs().map(async workspace => {
-        process.chdir(path.dirname(workspace));
-
         try {
-          process.chdir(workspace);
+          process.chdir(path.dirname(workspace));
           return await action();
         } finally {
           process.chdir(this.getContext('root'));

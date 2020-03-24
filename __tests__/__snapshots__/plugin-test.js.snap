@@ -3,11 +3,11 @@
 exports[`release-it-yarn-workspaces it executes commands with defaults 1`] = `
 Array [
   Array [
-    "npm version 1.0.1 --no-git-tag-version",
+    "npm version 0.0.1 --no-git-tag-version",
     Object {},
   ],
   Array [
-    "npm version 1.0.1 --no-git-tag-version",
+    "npm version 0.0.1 --no-git-tag-version",
     Object {},
   ],
 ]
