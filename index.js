@@ -204,7 +204,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   }
 
   eachWorkspace(action) {
-    return this.getContext('workspaces').map(workspace => {
+    return this.getWorkspaceDirs().map(workspace => {
       return new Promise(resolve => {
         let root = process.cwd();
 
