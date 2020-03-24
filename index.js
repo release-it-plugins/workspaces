@@ -12,6 +12,7 @@ const ROOT_MANIFEST_PATH = './package.json';
 const REGISTRY_TIMEOUT = 10000;
 const DEFAULT_TAG = 'latest';
 const DEFAULT_TAG_PRERELEASE = 'next';
+const NPM_BASE_URL = 'https://www.npmjs.org';
 const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org';
 
 const noop = Promise.resolve();
