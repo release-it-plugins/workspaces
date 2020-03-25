@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "release-it": "^13.0.2",
-    "url-join": "^4.0.1",
     "walk-sync": "^2.0.2"
   },
   "devDependencies": {
