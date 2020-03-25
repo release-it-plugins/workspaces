@@ -79,7 +79,7 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
 
     const task = () => {
       return this.eachWorkspace(() => {
-        return this.exec(`npm version ${version} --no-git-tag-version`).catch(err => {
+        return this.exec(`npm version ${version} --no-git-tag-version`).catch((err) => {
           if (/version not changed/i.test(err)) {
             this.log.warn(`Did not update version in package.json, etc. (already at ${version}).`);
           }
@@ -124,7 +124,7 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
             this.log.warn('The provided OTP is incorrect or has expired.');
           }
           if (otpCallback) {
-            return otpCallback(otp => this.publish({ otp, otpCallback }));
+            return otpCallback((otp) => this.publish({ otp, otpCallback }));
           }
         }
         throw err;
@@ -134,7 +134,7 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
 
   eachWorkspace(action) {
     return Promise.all(
-      this.getWorkspaceDirs().map(async workspaceDir => {
+      this.getWorkspaceDirs().map(async (workspaceDir) => {
         try {
           process.chdir(workspaceDir);
           return await action();
@@ -151,9 +151,9 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
 
     let packageJSONFiles = walkSync(root, {
       includeBasePath: true,
-      globs: workspaces.map(glob => `${glob}/package.json`),
+      globs: workspaces.map((glob) => `${glob}/package.json`),
     });
 
-    return packageJSONFiles.map(file => path.dirname(file));
+    return packageJSONFiles.map((file) => path.dirname(file));
   }
 };
