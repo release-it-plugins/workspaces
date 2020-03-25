@@ -134,9 +134,9 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
 
   eachWorkspace(action) {
     return Promise.all(
-      this.getWorkspaceDirs().map(async workspace => {
+      this.getWorkspaceDirs().map(async workspaceDir => {
         try {
-          process.chdir(path.dirname(workspace));
+          process.chdir(workspaceDir);
           return await action();
         } finally {
           process.chdir(this.getContext('root'));
@@ -146,8 +146,14 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
   }
 
   getWorkspaceDirs() {
-    return walkSync('.', {
-      globs: this.getContext('workspaces').map(glob => `${glob}/package.json`),
-    }).map(workspace => path.resolve(this.getContext('root'), workspace));
+    let root = this.getContext('root');
+    let workspaces = this.getContext('workspaces');
+
+    let packageJSONFiles = walkSync(root, {
+      includeBasePath: true,
+      globs: workspaces.map(glob => `${glob}/package.json`),
+    });
+
+    return packageJSONFiles.map(file => path.dirname(file));
   }
 };
