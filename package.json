@@ -20,7 +20,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "release-it": "^13.0.2",
+    "release-it": "^13.3.1",
     "walk-sync": "^2.0.2"
   },
   "devDependencies": {
@@ -29,9 +29,9 @@
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-prettier": "^3.1.2",
-    "jest": "^25.1.0",
+    "jest": "^25.2.0",
     "prettier": "^2.0.2",
-    "release-it-lerna-changelog": "^2.1.0",
+    "release-it-lerna-changelog": "^2.1.1",
     "sinon": "^9.0.1",
     "tmp": "^0.1.0"
   },
