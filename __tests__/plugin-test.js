@@ -77,6 +77,17 @@ describe('release-it-yarn-workspaces', () => {
 
     await runTasks(plugin);
 
-    expect(plugin.commands).toMatchSnapshot();
+    expect(plugin.commands).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          "npm version 0.0.1 --no-git-tag-version",
+          Object {},
+        ],
+        Array [
+          "npm version 0.0.1 --no-git-tag-version",
+          Object {},
+        ],
+      ]
+    `);
   });
 });
