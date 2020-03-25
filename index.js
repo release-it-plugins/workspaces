@@ -78,12 +78,16 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
     // intentionally not calling super.bump here
 
     const task = () => {
-      return this.eachWorkspace(() => {
-        return this.exec(`npm version ${version} --no-git-tag-version`).catch((err) => {
+      return this.eachWorkspace(async () => {
+        try {
+          return this.exec(`npm version ${version} --no-git-tag-version`);
+        } catch (err) {
           if (/version not changed/i.test(err)) {
             this.log.warn(`Did not update version in package.json, etc. (already at ${version}).`);
+          } else {
+            throw err;
           }
-        });
+        }
       });
     };
 
