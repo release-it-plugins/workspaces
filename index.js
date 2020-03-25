@@ -17,7 +17,7 @@ function resolveWorkspaces(workspaces) {
   if (Array.isArray(workspaces)) {
     return workspaces;
   } else if (workspaces !== null && typeof workspaces === 'object') {
-    return workspaces.workspaces;
+    return workspaces.packages;
   }
 
   throw new Error(
@@ -33,12 +33,6 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
   constructor(...args) {
     super(...args);
     this.registerPrompts(prompts);
-  }
-
-  async init() {
-    // intentionally not calling super.init here:
-    //
-    // * avoid the `getLatestRegistryVersion` check
 
     const {
       name,
@@ -56,6 +50,12 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
       workspaces: resolveWorkspaces(workspaces),
       root: process.cwd(),
     });
+  }
+
+  async init() {
+    // intentionally not calling super.init here:
+    //
+    // * avoid the `getLatestRegistryVersion` check
 
     if (this.options.skipChecks) return;
 
@@ -134,9 +134,9 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
 
   eachWorkspace(action) {
     return Promise.all(
-      this.getWorkspaceDirs().map(async workspace => {
+      this.getWorkspaceDirs().map(async workspaceDir => {
         try {
-          process.chdir(path.dirname(workspace));
+          process.chdir(workspaceDir);
           return await action();
         } finally {
           process.chdir(this.getContext('root'));
@@ -146,8 +146,14 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
   }
 
   getWorkspaceDirs() {
-    return walkSync('.', {
-      globs: this.getContext('workspaces').map(glob => `${glob}/package.json`),
-    }).map(workspace => path.resolve(this.getContext('root'), workspace));
+    let root = this.getContext('root');
+    let workspaces = this.getContext('workspaces');
+
+    let packageJSONFiles = walkSync(root, {
+      includeBasePath: true,
+      globs: workspaces.map(glob => `${glob}/package.json`),
+    });
+
+    return packageJSONFiles.map(file => path.dirname(file));
   }
 };
