@@ -33,12 +33,6 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
   constructor(...args) {
     super(...args);
     this.registerPrompts(prompts);
-  }
-
-  async init() {
-    // intentionally not calling super.init here:
-    //
-    // * avoid the `getLatestRegistryVersion` check
 
     const {
       name,
@@ -56,6 +50,12 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
       workspaces: resolveWorkspaces(workspaces),
       root: process.cwd(),
     });
+  }
+
+  async init() {
+    // intentionally not calling super.init here:
+    //
+    // * avoid the `getLatestRegistryVersion` check
 
     if (this.options.skipChecks) return;
 
