@@ -1,3 +1,4 @@
+const fs = require('fs');
 const { createTempDir } = require('broccoli-test-helper');
 const { factory, runTasks } = require('release-it/test/util');
 const Plugin = require('../index');
@@ -35,6 +36,37 @@ describe('release-it-yarn-workspaces', () => {
   let ROOT = process.cwd();
   let dir;
 
+  function setupProject(workspaces) {
+    dir.write({
+      'package.json': json({
+        name: 'root',
+        version: '0.0.0',
+        license: 'MIT',
+        private: true,
+        workspaces,
+      }),
+    });
+  }
+
+  function setupWorkspace(_pkg) {
+    let pkg = Object.assign(
+      {
+        version: '0.0.0',
+        license: 'MIT',
+      },
+      _pkg
+    );
+    let name = pkg.name;
+
+    dir.write({
+      packages: {
+        [name]: {
+          'package.json': json(pkg),
+        },
+      },
+    });
+  }
+
   beforeEach(async () => {
     dir = await createTempDir();
 
@@ -43,37 +75,16 @@ describe('release-it-yarn-workspaces', () => {
 
   afterEach(async () => {
     process.chdir(ROOT);
+
     await dir.dispose();
   });
 
-  it('it executes commands with defaults', async () => {
-    let plugin = buildPlugin();
+  it('works', async () => {
+    setupProject(['packages/*']);
+    setupWorkspace({ name: 'foo' });
+    setupWorkspace({ name: 'bar' });
 
-    dir.write({
-      'package.json': json({
-        name: 'root',
-        version: '0.0.0',
-        license: 'MIT',
-        private: true,
-        workspaces: ['packages/*'],
-      }),
-      packages: {
-        foo: {
-          'package.json': json({
-            name: 'foo',
-            version: '0.0.0',
-            license: 'MIT',
-          }),
-        },
-        bar: {
-          'package.json': json({
-            name: 'bar',
-            version: '0.0.0',
-            license: 'MIT',
-          }),
-        },
-      },
-    });
+    let plugin = buildPlugin();
 
     await runTasks(plugin);
 
@@ -89,5 +100,39 @@ describe('release-it-yarn-workspaces', () => {
         ],
       ]
     `);
+  });
+
+  describe('getWorkspaceDirs', () => {
+    it('can find workspaces specified as an array', async () => {
+      setupProject(['packages/*']);
+
+      setupWorkspace({ name: 'foo' });
+      setupWorkspace({ name: 'bar' });
+
+      let plugin = buildPlugin();
+
+      let workspaces = await plugin.getWorkspaceDirs();
+
+      expect(workspaces).toEqual([
+        fs.realpathSync(dir.path('packages/bar')),
+        fs.realpathSync(dir.path('packages/foo')),
+      ]);
+    });
+
+    it('can find workspaces specified as an object', async () => {
+      setupProject({ packages: ['packages/*'] });
+
+      setupWorkspace({ name: 'foo' });
+      setupWorkspace({ name: 'bar' });
+
+      let plugin = buildPlugin();
+
+      let workspaces = await plugin.getWorkspaceDirs();
+
+      expect(workspaces).toEqual([
+        fs.realpathSync(dir.path('packages/bar')),
+        fs.realpathSync(dir.path('packages/foo')),
+      ]);
+    });
   });
 });
