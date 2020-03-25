@@ -17,7 +17,7 @@ function resolveWorkspaces(workspaces) {
   if (Array.isArray(workspaces)) {
     return workspaces;
   } else if (workspaces !== null && typeof workspaces === 'object') {
-    return workspaces.workspaces;
+    return workspaces.packages;
   }
 
   throw new Error(
