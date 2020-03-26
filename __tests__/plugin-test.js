@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const { createTempDir } = require('broccoli-test-helper');
 const { factory, runTasks } = require('release-it/test/util');
 const Shell = require('release-it/lib/shell');
@@ -33,7 +34,13 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
   container.shell.exec = Shell.prototype.exec;
 
   plugin.shell.execFormattedCommand = async (command, options) => {
-    plugin.commands.push([command, options]);
+    let relativeRoot = path.relative(plugin.context.root, process.cwd());
+
+    plugin.commands.push({
+      relativeRoot,
+      command,
+      options,
+    });
 
     if (commandResponses[command]) {
       return Promise.resolve(commandResponses[command]);
@@ -108,34 +115,40 @@ describe('release-it-yarn-workspaces', () => {
 
       expect(plugin.commands).toMatchInlineSnapshot(`
         Array [
-          Array [
-            "npm ping --registry https://registry.npmjs.org",
-            Object {},
-          ],
-          Array [
-            "npm whoami --registry https://registry.npmjs.org",
-            Object {},
-          ],
-          Array [
-            "npm version 1.0.1 --no-git-tag-version",
-            Object {},
-          ],
-          Array [
-            "npm version 1.0.1 --no-git-tag-version",
-            Object {},
-          ],
-          Array [
-            "npm publish . --tag latest  ",
-            Object {
+          Object {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm version 1.0.1 --no-git-tag-version",
+            "options": Object {},
+            "relativeRoot": "packages/bar",
+          },
+          Object {
+            "command": "npm version 1.0.1 --no-git-tag-version",
+            "options": Object {},
+            "relativeRoot": "packages/foo",
+          },
+          Object {
+            "command": "npm publish . --tag latest  ",
+            "options": Object {
               "write": false,
             },
-          ],
-          Array [
-            "npm publish . --tag latest  ",
-            Object {
+            "relativeRoot": "packages/bar",
+          },
+          Object {
+            "command": "npm publish . --tag latest  ",
+            "options": Object {
               "write": false,
             },
-          ],
+            "relativeRoot": "packages/foo",
+          },
         ]
       `);
     });
