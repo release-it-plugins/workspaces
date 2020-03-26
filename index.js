@@ -4,7 +4,6 @@ const urlJoin = require('url-join');
 const walkSync = require('walk-sync');
 const { rejectAfter } = require('release-it/lib/util');
 const { npmTimeoutError, npmAuthError } = require('release-it/lib/errors');
-const prompts = require('release-it/lib/plugin/npm/prompts');
 const { Plugin } = require('release-it');
 
 const options = { write: false };
@@ -35,7 +34,22 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
   constructor(...args) {
     super(...args);
-    this.registerPrompts(prompts);
+
+    this.registerPrompts({
+      publish: {
+        type: 'confirm',
+        message: (context) => {
+          const { tag, name } = context['release-it-yarn-workspaces'];
+
+          return `Publish ${name}${tag === 'latest' ? '' : `@${tag}`} to npm?`;
+        },
+        default: true,
+      },
+      otp: {
+        type: 'input',
+        message: () => `Please enter OTP for npm:`,
+      },
+    });
 
     const {
       name,
