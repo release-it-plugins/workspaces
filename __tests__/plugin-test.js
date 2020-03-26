@@ -79,27 +79,31 @@ describe('release-it-yarn-workspaces', () => {
     await dir.dispose();
   });
 
-  it('works', async () => {
-    setupProject(['packages/*']);
-    setupWorkspace({ name: 'foo' });
-    setupWorkspace({ name: 'bar' });
+  describe('normal project setup', () => {
+    beforeEach(() => {
+      setupProject(['packages/*']);
+      setupWorkspace({ name: 'foo' });
+      setupWorkspace({ name: 'bar' });
+    });
 
-    let plugin = buildPlugin();
+    it('works', async () => {
+      let plugin = buildPlugin();
 
-    await runTasks(plugin);
+      await runTasks(plugin);
 
-    expect(plugin.commands).toMatchInlineSnapshot(`
-      Array [
+      expect(plugin.commands).toMatchInlineSnapshot(`
         Array [
-          "npm version 0.0.1 --no-git-tag-version",
-          Object {},
-        ],
-        Array [
-          "npm version 0.0.1 --no-git-tag-version",
-          Object {},
-        ],
-      ]
-    `);
+          Array [
+            "npm version 0.0.1 --no-git-tag-version",
+            Object {},
+          ],
+          Array [
+            "npm version 0.0.1 --no-git-tag-version",
+            Object {},
+          ],
+        ]
+      `);
+    });
   });
 
   describe('getWorkspaces', () => {
