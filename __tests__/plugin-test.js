@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { createTempDir } = require('broccoli-test-helper');
 const { factory, runTasks } = require('release-it/test/util');
+const Shell = require('release-it/lib/shell');
 const Plugin = require('../index');
 
 const namespace = 'release-it-yarn-workspaces';
@@ -14,23 +15,22 @@ class TestPlugin extends Plugin {
 }
 
 function buildPlugin(config = {}, _Plugin = TestPlugin) {
-  const promptResponses = {};
+  const container = {};
   const commandResponses = {};
 
-  const container = {
-    inquirer: {
-      async prompt([prompt]) {
-        if (prompt.name in promptResponses) {
-          return promptResponses[prompt.name];
-        }
-      },
-    },
-  };
   const options = { [namespace]: config };
   const plugin = factory(_Plugin, { container, namespace, options });
 
   plugin.commandResponses = commandResponses;
-  plugin.promptResponses = promptResponses;
+
+  // this works around a fairly fundamental issue in release-it's testing
+  // harness which is that the ShellStub that is used specifically noop's when
+  // the command being invoked is `/^(npm (ping|publish|show|whoami)|git fetch)/.test(command)`
+  //
+  // we work around the same relative issue by storing the commands executed,
+  // and intercepting them to return replacement values (this is done in
+  // execFormattedCommand just below)
+  container.shell.exec = Shell.prototype.exec;
 
   plugin.shell.execFormattedCommand = async (command, options) => {
     plugin.commands.push([command, options]);
@@ -109,12 +109,32 @@ describe('release-it-yarn-workspaces', () => {
       expect(plugin.commands).toMatchInlineSnapshot(`
         Array [
           Array [
+            "npm ping --registry https://registry.npmjs.org",
+            Object {},
+          ],
+          Array [
+            "npm whoami --registry https://registry.npmjs.org",
+            Object {},
+          ],
+          Array [
             "npm version 1.0.1 --no-git-tag-version",
             Object {},
           ],
           Array [
             "npm version 1.0.1 --no-git-tag-version",
             Object {},
+          ],
+          Array [
+            "npm publish . --tag latest  ",
+            Object {
+              "write": false,
+            },
+          ],
+          Array [
+            "npm publish . --tag latest  ",
+            Object {
+              "write": false,
+            },
           ],
         ]
       `);
