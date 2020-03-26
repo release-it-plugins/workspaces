@@ -11,7 +11,6 @@ const options = { write: false };
 const ROOT_MANIFEST_PATH = './package.json';
 const REGISTRY_TIMEOUT = 10000;
 const DEFAULT_TAG = 'latest';
-const DEFAULT_TAG_PRERELEASE = 'next';
 const NPM_BASE_URL = 'https://www.npmjs.com';
 const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org';
 
@@ -51,18 +50,9 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       },
     });
 
-    const {
-      name,
-      version: latestVersion,
-      private: isPrivate,
-      publishConfig,
-      workspaces,
-    } = require(path.resolve(ROOT_MANIFEST_PATH));
+    const { publishConfig, workspaces } = require(path.resolve(ROOT_MANIFEST_PATH));
 
     this.setContext({
-      name,
-      latestVersion,
-      private: isPrivate,
       publishConfig,
       workspaces: resolveWorkspaces(workspaces),
       root: process.cwd(),
