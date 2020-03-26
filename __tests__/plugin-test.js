@@ -102,7 +102,23 @@ describe('release-it-yarn-workspaces', () => {
     `);
   });
 
-  describe('getWorkspaceDirs', () => {
+  describe('getWorkspaces', () => {
+    it('detects private packages', async () => {
+      setupProject(['packages/*']);
+
+      setupWorkspace({ name: 'bar' });
+      setupWorkspace({ name: 'foo', private: true });
+
+      let plugin = buildPlugin();
+
+      let workspaces = await plugin.getWorkspaces();
+
+      expect(workspaces).toEqual([
+        { name: 'bar', isPrivate: false, root: fs.realpathSync(dir.path('packages/bar')) },
+        { name: 'foo', isPrivate: true, root: fs.realpathSync(dir.path('packages/foo')) },
+      ]);
+    });
+
     it('can find workspaces specified as an array', async () => {
       setupProject(['packages/*']);
 
@@ -111,11 +127,11 @@ describe('release-it-yarn-workspaces', () => {
 
       let plugin = buildPlugin();
 
-      let workspaces = await plugin.getWorkspaceDirs();
+      let workspaces = await plugin.getWorkspaces();
 
       expect(workspaces).toEqual([
-        fs.realpathSync(dir.path('packages/bar')),
-        fs.realpathSync(dir.path('packages/foo')),
+        { name: 'bar', isPrivate: false, root: fs.realpathSync(dir.path('packages/bar')) },
+        { name: 'foo', isPrivate: false, root: fs.realpathSync(dir.path('packages/foo')) },
       ]);
     });
 
@@ -127,11 +143,11 @@ describe('release-it-yarn-workspaces', () => {
 
       let plugin = buildPlugin();
 
-      let workspaces = await plugin.getWorkspaceDirs();
+      let workspaces = await plugin.getWorkspaces();
 
       expect(workspaces).toEqual([
-        fs.realpathSync(dir.path('packages/bar')),
-        fs.realpathSync(dir.path('packages/foo')),
+        { name: 'bar', isPrivate: false, root: fs.realpathSync(dir.path('packages/bar')) },
+        { name: 'foo', isPrivate: false, root: fs.realpathSync(dir.path('packages/foo')) },
       ]);
     });
   });

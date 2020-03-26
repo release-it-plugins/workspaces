@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const walkSync = require('walk-sync');
 const { hasAccess, rejectAfter } = require('release-it/lib/util');
@@ -138,9 +139,9 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
 
   eachWorkspace(action) {
     return Promise.all(
-      this.getWorkspaceDirs().map(async (workspaceDir) => {
+      this.getWorkspaces().map(async (workspaceInfo) => {
         try {
-          process.chdir(workspaceDir);
+          process.chdir(workspaceInfo.root);
           return await action();
         } finally {
           process.chdir(this.getContext('root'));
@@ -149,7 +150,7 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
     );
   }
 
-  getWorkspaceDirs() {
+  getWorkspaces() {
     let root = this.getContext('root');
     let workspaces = this.getContext('workspaces');
 
@@ -158,6 +159,14 @@ module.exports = class YarnWorkspacesPlugin extends UpstreamPlugin {
       globs: workspaces.map((glob) => `${glob}/package.json`),
     });
 
-    return packageJSONFiles.map((file) => path.dirname(file));
+    return packageJSONFiles.map((file) => {
+      let pkg = JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
+
+      return {
+        root: path.dirname(file),
+        name: pkg.name,
+        isPrivate: !!pkg.private,
+      };
+    });
   }
 };
