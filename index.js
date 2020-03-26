@@ -41,7 +41,7 @@ function parseVersion(raw) {
     isPreRelease,
     preReleaseId,
   };
-};
+}
 
 module.exports = class YarnWorkspacesPlugin extends Plugin {
   static isEnabled(options) {
@@ -54,7 +54,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     this.registerPrompts({
       publish: {
         type: 'confirm',
-        message: (context) => {
+        message: context => {
           const { tag, name } = context['release-it-yarn-workspaces'];
 
           return `Publish ${name}${tag === 'latest' ? '' : `@${tag}`} to npm?`;
@@ -125,9 +125,9 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     if (this.options.publish === false) return;
 
     const tag = this.getContext('distTag');
-    const otpCallback = this.global.isCI ? null : (task) => this.step({ prompt: 'otp', task });
+    const otpCallback = this.global.isCI ? null : task => this.step({ prompt: 'otp', task });
     const task = async () => {
-      await this.eachWorkspace(async (workspaceInfo) => {
+      await this.eachWorkspace(async workspaceInfo => {
         await this.publish({ tag, workspaceInfo, otpCallback });
       });
     };
@@ -201,7 +201,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
           this.log.warn('The provided OTP is incorrect or has expired.');
         }
         if (otpCallback) {
-          return otpCallback((otp) => this.publish({ workspaceInfo, tag, otp, otpCallback }));
+          return otpCallback(otp => this.publish({ workspaceInfo, tag, otp, otpCallback }));
         }
       }
       throw err;
@@ -210,7 +210,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
   eachWorkspace(action) {
     return Promise.all(
-      this.getWorkspaces().map(async (workspaceInfo) => {
+      this.getWorkspaces().map(async workspaceInfo => {
         try {
           process.chdir(workspaceInfo.root);
           return await action(workspaceInfo);
@@ -226,10 +226,10 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     let workspaces = this.getContext('workspaces');
 
     let packageJSONFiles = walkSync('.', {
-      globs: workspaces.map((glob) => `${glob}/package.json`),
+      globs: workspaces.map(glob => `${glob}/package.json`),
     });
 
-    return packageJSONFiles.map((file) => {
+    return packageJSONFiles.map(file => {
       let pkg = JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
 
       let relativeRoot = path.dirname(file);
