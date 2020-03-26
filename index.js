@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const semver = require('semver');
 const urlJoin = require('url-join');
 const walkSync = require('walk-sync');
 const { rejectAfter } = require('release-it/lib/util');
@@ -25,6 +26,22 @@ function resolveWorkspaces(workspaces) {
     "This package doesn't use yarn workspaces. (package.json doesn't contain a `workspaces` property)"
   );
 }
+
+function parseVersion(raw) {
+  if (!raw) return { version: null, isPreRelease: false, preReleaseId: null };
+
+  const version = semver.valid(raw) ? raw : semver.coerce(raw);
+  const parsed = semver.parse(version);
+
+  const isPreRelease = parsed.prerelease.length > 0;
+  const preReleaseId = isPreRelease && isNaN(parsed.prerelease[0]) ? parsed.prerelease[0] : null;
+
+  return {
+    version,
+    isPreRelease,
+    preReleaseId,
+  };
+};
 
 module.exports = class YarnWorkspacesPlugin extends Plugin {
   static isEnabled(options) {
@@ -82,6 +99,11 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   }
 
   async bump(version) {
+    const { isPreRelease, preReleaseId } = parseVersion(version);
+    const distTag = this.options['dist-tag'] || isPreRelease ? preReleaseId : DEFAULT_TAG;
+
+    this.setContext({ distTag });
+
     const task = () => {
       return this.eachWorkspace(async () => {
         try {
@@ -102,8 +124,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   async release() {
     if (this.options.publish === false) return;
 
-    let tag = this.options['dist-tag'] || DEFAULT_TAG;
-
+    const tag = this.getContext('distTag');
     const otpCallback = this.global.isCI ? null : (task) => this.step({ prompt: 'otp', task });
     const task = async () => {
       await this.eachWorkspace(async (workspaceInfo) => {
