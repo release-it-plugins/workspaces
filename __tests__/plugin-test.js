@@ -9,21 +9,36 @@ class TestPlugin extends Plugin {
   constructor() {
     super(...arguments);
 
-    this.responses = {};
-
     this.commands = [];
-    this.shell.execFormattedCommand = async (command, options) => {
-      this.commands.push([command, options]);
-      if (this.responses[command]) {
-        return Promise.resolve(this.responses[command]);
-      }
-    };
   }
 }
 
 function buildPlugin(config = {}, _Plugin = TestPlugin) {
+  const promptResponses = {};
+  const commandResponses = {};
+
+  const container = {
+    inquirer: {
+      async prompt([prompt]) {
+        if (prompt.name in promptResponses) {
+          return promptResponses[prompt.name];
+        }
+      },
+    },
+  };
   const options = { [namespace]: config };
-  const plugin = factory(_Plugin, { namespace, options });
+  const plugin = factory(_Plugin, { container, namespace, options });
+
+  plugin.commandResponses = commandResponses;
+  plugin.promptResponses = promptResponses;
+
+  plugin.shell.execFormattedCommand = async (command, options) => {
+    plugin.commands.push([command, options]);
+
+    if (commandResponses[command]) {
+      return Promise.resolve(commandResponses[command]);
+    }
+  };
 
   return plugin;
 }
