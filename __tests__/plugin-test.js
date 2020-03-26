@@ -94,11 +94,11 @@ describe('release-it-yarn-workspaces', () => {
       expect(plugin.commands).toMatchInlineSnapshot(`
         Array [
           Array [
-            "npm version 0.0.1 --no-git-tag-version",
+            "npm version 1.0.1 --no-git-tag-version",
             Object {},
           ],
           Array [
-            "npm version 0.0.1 --no-git-tag-version",
+            "npm version 1.0.1 --no-git-tag-version",
             Object {},
           ],
         ]
@@ -118,8 +118,18 @@ describe('release-it-yarn-workspaces', () => {
       let workspaces = await plugin.getWorkspaces();
 
       expect(workspaces).toEqual([
-        { name: 'bar', isPrivate: false, root: fs.realpathSync(dir.path('packages/bar')) },
-        { name: 'foo', isPrivate: true, root: fs.realpathSync(dir.path('packages/foo')) },
+        {
+          name: 'bar',
+          isReleased: false,
+          isPrivate: false,
+          root: fs.realpathSync(dir.path('packages/bar')),
+        },
+        {
+          name: 'foo',
+          isReleased: false,
+          isPrivate: true,
+          root: fs.realpathSync(dir.path('packages/foo')),
+        },
       ]);
     });
 
@@ -134,8 +144,18 @@ describe('release-it-yarn-workspaces', () => {
       let workspaces = await plugin.getWorkspaces();
 
       expect(workspaces).toEqual([
-        { name: 'bar', isPrivate: false, root: fs.realpathSync(dir.path('packages/bar')) },
-        { name: 'foo', isPrivate: false, root: fs.realpathSync(dir.path('packages/foo')) },
+        {
+          name: 'bar',
+          isPrivate: false,
+          isReleased: false,
+          root: fs.realpathSync(dir.path('packages/bar')),
+        },
+        {
+          name: 'foo',
+          isPrivate: false,
+          isReleased: false,
+          root: fs.realpathSync(dir.path('packages/foo')),
+        },
       ]);
     });
 
@@ -150,8 +170,18 @@ describe('release-it-yarn-workspaces', () => {
       let workspaces = await plugin.getWorkspaces();
 
       expect(workspaces).toEqual([
-        { name: 'bar', isPrivate: false, root: fs.realpathSync(dir.path('packages/bar')) },
-        { name: 'foo', isPrivate: false, root: fs.realpathSync(dir.path('packages/foo')) },
+        {
+          name: 'bar',
+          isPrivate: false,
+          isReleased: false,
+          root: fs.realpathSync(dir.path('packages/bar')),
+        },
+        {
+          name: 'foo',
+          isPrivate: false,
+          isReleased: false,
+          root: fs.realpathSync(dir.path('packages/foo')),
+        },
       ]);
     });
   });

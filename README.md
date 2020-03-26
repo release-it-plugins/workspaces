@@ -30,7 +30,11 @@ For example, configuring via `package.json` would look like this:
 {
   "release-it": {
     "plugins": {
-      "release-it-yarn-workspaces": true
+      "release-it-yarn-workspaces": {
+        "skipChecks": false,
+        "publish": true,
+        "dist-tag": "latest"
+      }
     }
   }
 }
