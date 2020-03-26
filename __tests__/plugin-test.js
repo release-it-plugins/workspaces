@@ -158,12 +158,14 @@ describe('release-it-yarn-workspaces', () => {
           isReleased: false,
           isPrivate: false,
           root: fs.realpathSync(dir.path('packages/bar')),
+          relativeRoot: 'packages/bar',
         },
         {
           name: 'foo',
           isReleased: false,
           isPrivate: true,
           root: fs.realpathSync(dir.path('packages/foo')),
+          relativeRoot: 'packages/foo',
         },
       ]);
     });
@@ -184,12 +186,14 @@ describe('release-it-yarn-workspaces', () => {
           isPrivate: false,
           isReleased: false,
           root: fs.realpathSync(dir.path('packages/bar')),
+          relativeRoot: 'packages/bar',
         },
         {
           name: 'foo',
           isPrivate: false,
           isReleased: false,
           root: fs.realpathSync(dir.path('packages/foo')),
+          relativeRoot: 'packages/foo',
         },
       ]);
     });
@@ -210,12 +214,14 @@ describe('release-it-yarn-workspaces', () => {
           isPrivate: false,
           isReleased: false,
           root: fs.realpathSync(dir.path('packages/bar')),
+          relativeRoot: 'packages/bar',
         },
         {
           name: 'foo',
           isPrivate: false,
           isReleased: false,
           root: fs.realpathSync(dir.path('packages/foo')),
+          relativeRoot: 'packages/foo',
         },
       ]);
     });

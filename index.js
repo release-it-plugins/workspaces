@@ -214,16 +214,18 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     let root = this.getContext('root');
     let workspaces = this.getContext('workspaces');
 
-    let packageJSONFiles = walkSync(root, {
-      includeBasePath: true,
+    let packageJSONFiles = walkSync('.', {
       globs: workspaces.map((glob) => `${glob}/package.json`),
     });
 
     return packageJSONFiles.map((file) => {
       let pkg = JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
 
+      let relativeRoot = path.dirname(file);
+
       return {
-        root: path.dirname(file),
+        root: path.join(root, relativeRoot),
+        relativeRoot,
         name: pkg.name,
         isPrivate: !!pkg.private,
         isReleased: false,
