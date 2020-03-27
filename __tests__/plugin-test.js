@@ -167,6 +167,86 @@ describe('release-it-yarn-workspaces', () => {
       `);
     });
 
+    it('can specify custom workspaces (overrides package.json settings)', async () => {
+      function setupDistWorkspace(_pkg) {
+        let pkg = Object.assign(
+          {
+            version: '0.0.0',
+            license: 'MIT',
+          },
+          _pkg
+        );
+        let name = pkg.name;
+
+        dir.write({
+          dist: {
+            packages: {
+              [name]: {
+                'package.json': json(pkg),
+              },
+            },
+          },
+        });
+      }
+
+      setupDistWorkspace({ name: 'qux' });
+      setupDistWorkspace({ name: 'zorp' });
+
+      let plugin = buildPlugin({ workspaces: ['dist/packages/*'] });
+
+      await runTasks(plugin);
+
+      expect(plugin.commands).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm version 1.0.1 --no-git-tag-version",
+            "options": Object {},
+            "relativeRoot": "dist/packages/qux",
+          },
+          Object {
+            "command": "npm version 1.0.1 --no-git-tag-version",
+            "options": Object {},
+            "relativeRoot": "dist/packages/zorp",
+          },
+          Object {
+            "command": "npm publish . --tag latest  ",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "dist/packages/qux",
+          },
+          Object {
+            "command": "npm publish . --tag latest  ",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "dist/packages/zorp",
+          },
+        ]
+      `);
+
+      expect(plugin.logs).toMatchInlineSnapshot(`
+        Array [
+          Array [
+            "🔗 https://www.npmjs.com/package/qux",
+          ],
+          Array [
+            "🔗 https://www.npmjs.com/package/zorp",
+          ],
+        ]
+      `);
+    });
+
     it('uses specified distTag', async () => {
       let plugin = buildPlugin({ distTag: 'foo' });
 

@@ -71,7 +71,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
     this.setContext({
       publishConfig,
-      workspaces: resolveWorkspaces(workspaces),
+      workspaces: this.options.workspaces || resolveWorkspaces(workspaces),
       root: process.cwd(),
     });
   }
