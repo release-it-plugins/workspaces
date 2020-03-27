@@ -166,6 +166,37 @@ describe('release-it-yarn-workspaces', () => {
       expect(readWorkspacePackage('foo').version).toEqual('1.0.1');
     });
 
+    it('updates dependencies / devDependencies of packages', async () => {
+      setupWorkspace({
+        name: 'baz',
+
+        dependencies: {
+          'foo': '^1.0.0'
+        },
+        devDependencies: {
+          'bar': '^1.0.0'
+        }
+      });
+
+      let plugin = buildPlugin();
+
+      await runTasks(plugin);
+
+      let pkg = JSON.parse(dir.readText('packages/baz/package.json'));
+
+      expect(pkg).toEqual({
+        name: 'baz',
+        version: '1.0.1',
+
+        dependencies: {
+          'foo': '^1.0.0'
+        },
+        devDependencies: {
+          'bar': '^1.0.0'
+        }
+      });
+    });
+
     it('can specify custom workspaces (overrides package.json settings)', async () => {
       function setupDistWorkspace(_pkg) {
         let pkg = Object.assign(
