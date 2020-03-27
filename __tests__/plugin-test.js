@@ -152,6 +152,132 @@ describe('release-it-yarn-workspaces', () => {
         ]
       `);
     });
+
+    it('uses specified distTag', async () => {
+      let plugin = buildPlugin({ distTag: 'foo' });
+
+      await runTasks(plugin);
+
+      expect(plugin.commands).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm version 1.0.1 --no-git-tag-version",
+            "options": Object {},
+            "relativeRoot": "packages/bar",
+          },
+          Object {
+            "command": "npm version 1.0.1 --no-git-tag-version",
+            "options": Object {},
+            "relativeRoot": "packages/foo",
+          },
+          Object {
+            "command": "npm publish . --tag foo  ",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/bar",
+          },
+          Object {
+            "command": "npm publish . --tag foo  ",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/foo",
+          },
+        ]
+      `);
+    });
+    it('skips registry checks with skipChecks', async () => {
+      let plugin = buildPlugin({ skipChecks: true });
+
+      await runTasks(plugin);
+
+      expect(plugin.commands).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "command": "npm version 1.0.1 --no-git-tag-version",
+            "options": Object {},
+            "relativeRoot": "packages/bar",
+          },
+          Object {
+            "command": "npm version 1.0.1 --no-git-tag-version",
+            "options": Object {},
+            "relativeRoot": "packages/foo",
+          },
+          Object {
+            "command": "npm publish . --tag latest  ",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/bar",
+          },
+          Object {
+            "command": "npm publish . --tag latest  ",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/foo",
+          },
+        ]
+      `);
+    });
+
+    it('uses prerelease npm dist-tag', async () => {
+      let plugin = buildPlugin();
+
+      plugin.getIncrementedVersion = () => '1.0.0-beta.1';
+
+      await runTasks(plugin);
+
+      expect(plugin.commands).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm version 1.0.0-beta.1 --no-git-tag-version",
+            "options": Object {},
+            "relativeRoot": "packages/bar",
+          },
+          Object {
+            "command": "npm version 1.0.0-beta.1 --no-git-tag-version",
+            "options": Object {},
+            "relativeRoot": "packages/foo",
+          },
+          Object {
+            "command": "npm publish . --tag beta  ",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/bar",
+          },
+          Object {
+            "command": "npm publish . --tag beta  ",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/foo",
+          },
+        ]
+      `);
+    });
   });
 
   describe('getWorkspaces', () => {

@@ -99,8 +99,12 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   }
 
   async bump(version) {
-    const { isPreRelease, preReleaseId } = parseVersion(version);
-    const distTag = this.options['dist-tag'] || isPreRelease ? preReleaseId : DEFAULT_TAG;
+    let { distTag } = this.options;
+
+    if (!distTag) {
+      const { isPreRelease, preReleaseId } = parseVersion(version);
+      distTag = this.options.distTag || isPreRelease ? preReleaseId : DEFAULT_TAG;
+    }
 
     this.setContext({ distTag });
 

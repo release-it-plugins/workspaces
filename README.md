@@ -33,7 +33,7 @@ For example, configuring via `package.json` would look like this:
       "release-it-yarn-workspaces": {
         "skipChecks": false,
         "publish": true,
-        "dist-tag": "latest"
+        "distTag": "latest"
       }
     }
   }
