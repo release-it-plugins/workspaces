@@ -139,6 +139,16 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     await this.step({ task, label: 'npm publish', prompt: 'publish' });
   }
 
+  async afterRelease() {
+    let workspaces = this.getWorkspaces();
+
+    workspaces.forEach(workspaceInfo => {
+      if (workspaceInfo.isReleased) {
+        this.log.log(`🔗 ${this.getReleaseUrl(workspaceInfo)}`);
+      }
+    });
+  }
+
   async isRegistryUp() {
     const registry = this.getRegistry();
 
@@ -173,10 +183,11 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     }
   }
 
-  getReleaseUrl() {
+  getReleaseUrl(workspaceInfo) {
     const registry = this.getRegistry();
     const baseUrl = registry !== NPM_DEFAULT_REGISTRY ? registry : NPM_BASE_URL;
-    return urlJoin(baseUrl, 'package', this.getName());
+
+    return urlJoin(baseUrl, 'package', workspaceInfo.name);
   }
 
   getRegistry() {

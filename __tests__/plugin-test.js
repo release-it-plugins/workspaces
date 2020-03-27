@@ -12,6 +12,7 @@ class TestPlugin extends Plugin {
     super(...arguments);
 
     this.commands = [];
+    this.logs = [];
   }
 }
 
@@ -21,6 +22,8 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
 
   const options = { [namespace]: config };
   const plugin = factory(_Plugin, { container, namespace, options });
+
+  plugin.log.log = (...args) => plugin.logs.push(args);
 
   plugin.commandResponses = commandResponses;
 
@@ -151,6 +154,17 @@ describe('release-it-yarn-workspaces', () => {
           },
         ]
       `);
+
+      expect(plugin.logs).toMatchInlineSnapshot(`
+        Array [
+          Array [
+            "🔗 https://www.npmjs.com/package/bar",
+          ],
+          Array [
+            "🔗 https://www.npmjs.com/package/foo",
+          ],
+        ]
+      `);
     });
 
     it('uses specified distTag', async () => {
@@ -197,6 +211,7 @@ describe('release-it-yarn-workspaces', () => {
         ]
       `);
     });
+
     it('skips registry checks with skipChecks', async () => {
       let plugin = buildPlugin({ skipChecks: true });
 
