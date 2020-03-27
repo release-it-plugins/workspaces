@@ -1,3 +1,12 @@
+## v1.0.1 (2020-03-27)
+
+#### :bug: Bug Fix
+* [#12](https://github.com/rwjblue/release-it-yarn-workspaces/pull/12) Ensure publish prompt is useful ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 1
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v1.0.0 (2020-03-27)
 
 #### :rocket: Enhancement
