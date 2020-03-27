@@ -3,6 +3,8 @@ const path = require('path');
 const semver = require('semver');
 const urlJoin = require('url-join');
 const walkSync = require('walk-sync');
+const detectNewline = require('detect-newline');
+const detectIndent = require('detect-indent');
 const { rejectAfter } = require('release-it/lib/util');
 const { npmTimeoutError, npmAuthError } = require('release-it/lib/errors');
 const { Plugin } = require('release-it');
@@ -14,6 +16,7 @@ const REGISTRY_TIMEOUT = 10000;
 const DEFAULT_TAG = 'latest';
 const NPM_BASE_URL = 'https://www.npmjs.com';
 const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org';
+const DETECT_TRAILING_WHITESPACE = /\s+$/;
 
 function resolveWorkspaces(workspaces) {
   if (Array.isArray(workspaces)) {
@@ -41,6 +44,28 @@ function parseVersion(raw) {
     isPreRelease,
     preReleaseId,
   };
+}
+
+class JSONFile {
+  constructor(filename) {
+    let contents = fs.readFileSync(filename, { encoding: 'utf8' });
+
+    this.filename = filename;
+    this.pkg = JSON.parse(contents);
+    this.lineEndings = detectNewline(contents);
+    this.indent = detectIndent(contents).amount;
+
+    let trailingWhitespace = DETECT_TRAILING_WHITESPACE.exec(contents);
+    this.trailingWhitespace = trailingWhitespace ? trailingWhitespace : '';
+  }
+
+  write() {
+    let contents = JSON
+      .stringify(this.pkg, null, this.indent)
+      .replace(/\n/g, this.lineEndings);
+
+    fs.writeFileSync(this.filename, contents + this.trailingWhitespace, { encoding: 'utf8' });
+  }
 }
 
 module.exports = class YarnWorkspacesPlugin extends Plugin {
@@ -109,16 +134,15 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     this.setContext({ distTag });
 
     const task = () => {
-      return this.eachWorkspace(async () => {
-        try {
-          return this.exec(`npm version ${version} --no-git-tag-version`);
-        } catch (err) {
-          if (/version not changed/i.test(err)) {
-            this.log.warn(`Did not update version in package.json, etc. (already at ${version}).`);
-          } else {
-            throw err;
-          }
+      return this.eachWorkspace(async ({ pkgInfo }) => {
+        let originalVersion = pkgInfo.pkg.version;
+
+        if (originalVersion === version) {
+          this.log.warn(`Did not update version in package.json, etc. (already at ${version}).`);
         }
+
+        pkgInfo.pkg.version = version;
+        pkgInfo.write();
       });
     };
 
@@ -247,16 +271,18 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     });
 
     this._workspaces = packageJSONFiles.map(file => {
-      let pkg = JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
+      let absolutePath = path.join(root, file);
+      let pkgInfo = new JSONFile(absolutePath);
 
       let relativeRoot = path.dirname(file);
 
       return {
         root: path.join(root, relativeRoot),
         relativeRoot,
-        name: pkg.name,
-        isPrivate: !!pkg.private,
+        name: pkgInfo.pkg.name,
+        isPrivate: !!pkgInfo.pkg.private,
         isReleased: false,
+        pkgInfo,
       };
     });
 

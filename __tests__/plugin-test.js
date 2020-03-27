@@ -92,6 +92,12 @@ describe('release-it-yarn-workspaces', () => {
     });
   }
 
+  function readWorkspacePackage(name) {
+    let contents = dir.readText(`packages/${name}/package.json`);
+
+    return JSON.parse(contents);
+  }
+
   beforeEach(async () => {
     dir = await createTempDir();
 
@@ -129,16 +135,6 @@ describe('release-it-yarn-workspaces', () => {
             "relativeRoot": "",
           },
           Object {
-            "command": "npm version 1.0.1 --no-git-tag-version",
-            "options": Object {},
-            "relativeRoot": "packages/bar",
-          },
-          Object {
-            "command": "npm version 1.0.1 --no-git-tag-version",
-            "options": Object {},
-            "relativeRoot": "packages/foo",
-          },
-          Object {
             "command": "npm publish . --tag latest  ",
             "options": Object {
               "write": false,
@@ -165,6 +161,9 @@ describe('release-it-yarn-workspaces', () => {
           ],
         ]
       `);
+
+      expect(readWorkspacePackage('bar').version).toEqual('1.0.1');
+      expect(readWorkspacePackage('foo').version).toEqual('1.0.1');
     });
 
     it('can specify custom workspaces (overrides package.json settings)', async () => {
@@ -207,16 +206,6 @@ describe('release-it-yarn-workspaces', () => {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "options": Object {},
             "relativeRoot": "",
-          },
-          Object {
-            "command": "npm version 1.0.1 --no-git-tag-version",
-            "options": Object {},
-            "relativeRoot": "dist/packages/qux",
-          },
-          Object {
-            "command": "npm version 1.0.1 --no-git-tag-version",
-            "options": Object {},
-            "relativeRoot": "dist/packages/zorp",
           },
           Object {
             "command": "npm publish . --tag latest  ",
@@ -265,16 +254,6 @@ describe('release-it-yarn-workspaces', () => {
             "relativeRoot": "",
           },
           Object {
-            "command": "npm version 1.0.1 --no-git-tag-version",
-            "options": Object {},
-            "relativeRoot": "packages/bar",
-          },
-          Object {
-            "command": "npm version 1.0.1 --no-git-tag-version",
-            "options": Object {},
-            "relativeRoot": "packages/foo",
-          },
-          Object {
             "command": "npm publish . --tag foo  ",
             "options": Object {
               "write": false,
@@ -299,16 +278,6 @@ describe('release-it-yarn-workspaces', () => {
 
       expect(plugin.commands).toMatchInlineSnapshot(`
         Array [
-          Object {
-            "command": "npm version 1.0.1 --no-git-tag-version",
-            "options": Object {},
-            "relativeRoot": "packages/bar",
-          },
-          Object {
-            "command": "npm version 1.0.1 --no-git-tag-version",
-            "options": Object {},
-            "relativeRoot": "packages/foo",
-          },
           Object {
             "command": "npm publish . --tag latest  ",
             "options": Object {
@@ -347,16 +316,6 @@ describe('release-it-yarn-workspaces', () => {
             "relativeRoot": "",
           },
           Object {
-            "command": "npm version 1.0.0-beta.1 --no-git-tag-version",
-            "options": Object {},
-            "relativeRoot": "packages/bar",
-          },
-          Object {
-            "command": "npm version 1.0.0-beta.1 --no-git-tag-version",
-            "options": Object {},
-            "relativeRoot": "packages/foo",
-          },
-          Object {
             "command": "npm publish . --tag beta  ",
             "options": Object {
               "write": false,
@@ -376,6 +335,25 @@ describe('release-it-yarn-workspaces', () => {
   });
 
   describe('getWorkspaces', () => {
+    function workspaceInfoFor(name) {
+      let pkg = readWorkspacePackage(name);
+
+      return {
+        name,
+        isReleased: false,
+        isPrivate: !!pkg.private,
+        root: fs.realpathSync(dir.path(`packages/${name}`)),
+        relativeRoot: `packages/${name}`,
+        pkgInfo: {
+          indent: 2,
+          lineEndings: '\n',
+          trailingWhitespace: '',
+          filename: fs.realpathSync(dir.path(`packages/${name}/package.json`)),
+          pkg,
+        },
+      };
+    }
+
     it('returns stable values', async () => {
       setupProject(['packages/*']);
 
@@ -400,22 +378,7 @@ describe('release-it-yarn-workspaces', () => {
 
       let workspaces = await plugin.getWorkspaces();
 
-      expect(workspaces).toEqual([
-        {
-          name: 'bar',
-          isReleased: false,
-          isPrivate: false,
-          root: fs.realpathSync(dir.path('packages/bar')),
-          relativeRoot: 'packages/bar',
-        },
-        {
-          name: 'foo',
-          isReleased: false,
-          isPrivate: true,
-          root: fs.realpathSync(dir.path('packages/foo')),
-          relativeRoot: 'packages/foo',
-        },
-      ]);
+      expect(workspaces).toEqual([workspaceInfoFor('bar'), workspaceInfoFor('foo')]);
     });
 
     it('can find workspaces specified as an array', async () => {
@@ -428,22 +391,7 @@ describe('release-it-yarn-workspaces', () => {
 
       let workspaces = await plugin.getWorkspaces();
 
-      expect(workspaces).toEqual([
-        {
-          name: 'bar',
-          isPrivate: false,
-          isReleased: false,
-          root: fs.realpathSync(dir.path('packages/bar')),
-          relativeRoot: 'packages/bar',
-        },
-        {
-          name: 'foo',
-          isPrivate: false,
-          isReleased: false,
-          root: fs.realpathSync(dir.path('packages/foo')),
-          relativeRoot: 'packages/foo',
-        },
-      ]);
+      expect(workspaces).toEqual([workspaceInfoFor('bar'), workspaceInfoFor('foo')]);
     });
 
     it('can find workspaces specified as an object', async () => {
@@ -456,22 +404,79 @@ describe('release-it-yarn-workspaces', () => {
 
       let workspaces = await plugin.getWorkspaces();
 
-      expect(workspaces).toEqual([
-        {
-          name: 'bar',
-          isPrivate: false,
-          isReleased: false,
-          root: fs.realpathSync(dir.path('packages/bar')),
-          relativeRoot: 'packages/bar',
-        },
-        {
-          name: 'foo',
-          isPrivate: false,
-          isReleased: false,
-          root: fs.realpathSync(dir.path('packages/foo')),
-          relativeRoot: 'packages/foo',
-        },
-      ]);
+      expect(workspaces).toEqual([workspaceInfoFor('bar'), workspaceInfoFor('foo')]);
+    });
+
+    describe('JSONFile', () => {
+      it('preserves custom indentation levels when mutating', async () => {
+        setupProject({ packages: ['packages/*'] });
+
+        dir.write({
+          packages: {
+            foo: {
+              'package.json': JSON.stringify(
+                {
+                  name: 'foo',
+                  version: '1.0.0',
+                },
+                null,
+                5
+              ),
+            },
+          },
+        });
+
+        let plugin = buildPlugin();
+
+        let [fooWorkspaceInfo] = await plugin.getWorkspaces();
+
+        fooWorkspaceInfo.pkgInfo.pkg.thing = true;
+        fooWorkspaceInfo.pkgInfo.write();
+
+        expect(dir.readText('packages/foo/package.json')).toMatchInlineSnapshot(`
+          "{
+               \\"name\\": \\"foo\\",
+               \\"version\\": \\"1.0.0\\",
+               \\"thing\\": true
+          }"
+        `);
+      });
+
+      it('preserves custom whitespace at end of file when mutating', async () => {
+        setupProject({ packages: ['packages/*'] });
+
+        dir.write({
+          packages: {
+            foo: {
+              'package.json':
+                JSON.stringify(
+                  {
+                    name: 'foo',
+                    version: '1.0.0',
+                  },
+                  null,
+                  2
+                ) + '\n',
+            },
+          },
+        });
+
+        let plugin = buildPlugin();
+
+        let [fooWorkspaceInfo] = await plugin.getWorkspaces();
+
+        fooWorkspaceInfo.pkgInfo.pkg.thing = true;
+        fooWorkspaceInfo.pkgInfo.write();
+
+        expect(dir.readText('packages/foo/package.json')).toMatchInlineSnapshot(`
+          "{
+            \\"name\\": \\"foo\\",
+            \\"version\\": \\"1.0.0\\",
+            \\"thing\\": true
+          }
+          "
+        `);
+      });
     });
   });
 });
