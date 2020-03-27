@@ -174,17 +174,17 @@ describe('release-it-yarn-workspaces', () => {
         name: 'baz',
 
         dependencies: {
-          'foo': '^1.0.0'
+          foo: '^1.0.0',
         },
         devDependencies: {
-          'bar': '~1.0.0'
+          bar: '~1.0.0',
         },
         optionalDependencies: {
-          'qux': '1.0.0'
+          qux: '1.0.0',
         },
         peerDependencies: {
-          'derp': '^1.0.0',
-        }
+          derp: '^1.0.0',
+        },
       });
 
       let plugin = buildPlugin();
@@ -199,17 +199,17 @@ describe('release-it-yarn-workspaces', () => {
         version: '1.0.1',
 
         dependencies: {
-          'foo': '^1.0.1'
+          foo: '^1.0.1',
         },
         devDependencies: {
-          'bar': '~1.0.1'
+          bar: '~1.0.1',
         },
         optionalDependencies: {
-          'qux': '1.0.1'
+          qux: '1.0.1',
         },
         peerDependencies: {
-          'derp': '^1.0.1',
-        }
+          derp: '^1.0.1',
+        },
       });
     });
 
@@ -377,6 +377,23 @@ describe('release-it-yarn-workspaces', () => {
             "relativeRoot": "packages/foo",
           },
         ]
+      `);
+    });
+  });
+
+  describe('format publish output', () => {
+    it('correctly formats publish message for all packages', () => {
+      setupProject(['packages/*']);
+
+      let plugin = buildPlugin();
+
+      expect(plugin._formatPublishMessage('latest', ['@foo/bar', '@foo/baz', '@foo/blarg']))
+        .toMatchInlineSnapshot(`
+        "Preparing to publish:
+            @foo/bar
+            @foo/baz
+            @foo/blarg
+          Publish to npm:"
       `);
     });
   });

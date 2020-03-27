@@ -96,15 +96,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
         message: (context) => {
           const { distTag, packageNames } = context['release-it-yarn-workspaces'];
 
-          const messages = [
-            'Preparing to publish:',
-            ...packageNames.map(
-              (name) => `    ${name}${distTag === 'latest' ? '' : `@${distTag}`}`
-            ),
-            '  Publish to npm:',
-          ];
-
-          return messages.join('\n');
+          return this._formatPublishMessage(distTag, packageNames);
         },
         default: true,
       },
@@ -225,6 +217,16 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
         }
       }
     }
+  }
+
+  _formatPublishMessage(distTag, packageNames) {
+    const messages = [
+      'Preparing to publish:',
+      ...packageNames.map((name) => `    ${name}${distTag === 'latest' ? '' : `@${distTag}`}`),
+      '  Publish to npm:',
+    ];
+
+    return messages.join('\n');
   }
 
   async isRegistryUp() {
