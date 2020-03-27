@@ -46,6 +46,22 @@ function parseVersion(raw) {
   };
 }
 
+function buildReplacementDepencencyVersion(existingVersion, newVersion) {
+  let isExistingVersionExact = semver.parse(existingVersion);
+
+  if (isExistingVersionExact) {
+    return newVersion;
+  }
+
+  // coerce strips any leading `^` or `~`
+  let existingVersionCoerced = semver.coerce(existingVersion);
+  if (existingVersionCoerced) {
+    return existingVersion.replace(existingVersionCoerced.toString(), newVersion);
+  }
+
+  return newVersion;
+}
+
 class JSONFile {
   constructor(filename) {
     let contents = fs.readFileSync(filename, { encoding: 'utf8' });
@@ -133,15 +149,24 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
     this.setContext({ distTag });
 
-    const task = () => {
-      return this.eachWorkspace(async ({ pkgInfo }) => {
-        let originalVersion = pkgInfo.pkg.version;
+    const workspaces = this.getWorkspaces();
+
+    const task = async () => {
+      workspaces.forEach(({ pkgInfo }) => {
+        let { pkg } = pkgInfo;
+        let originalVersion = pkg.version;
 
         if (originalVersion === version) {
           this.log.warn(`Did not update version in package.json, etc. (already at ${version}).`);
         }
 
-        pkgInfo.pkg.version = version;
+        pkg.version = version;
+
+        this._updateDependencies(pkg.dependencies, version);
+        this._updateDependencies(pkg.devDependencies, version);
+        this._updateDependencies(pkg.optionalDependencies, version);
+        this._updateDependencies(pkg.peerDependencies, version);
+
         pkgInfo.write();
       });
     };
@@ -171,6 +196,21 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
         this.log.log(`🔗 ${this.getReleaseUrl(workspaceInfo)}`);
       }
     });
+  }
+
+  _updateDependencies(dependencies, newVersion) {
+    const workspaces = this.getWorkspaces();
+
+    if (dependencies) {
+      for (let dependency in dependencies) {
+        if (workspaces.find(w => w.name === dependency)) {
+          const existingVersion = dependencies[dependency];
+
+          dependencies[dependency] = buildReplacementDepencencyVersion(existingVersion, newVersion);
+        }
+      }
+    }
+
   }
 
   async isRegistryUp() {
