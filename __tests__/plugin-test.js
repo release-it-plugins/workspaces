@@ -281,6 +281,20 @@ describe('release-it-yarn-workspaces', () => {
   });
 
   describe('getWorkspaces', () => {
+    it('returns stable values', async () => {
+      setupProject(['packages/*']);
+
+      setupWorkspace({ name: 'bar' });
+      setupWorkspace({ name: 'foo', private: true });
+
+      let plugin = buildPlugin();
+
+      let workspaces1 = await plugin.getWorkspaces();
+      let workspaces2 = await plugin.getWorkspaces();
+
+      expect(workspaces1).toStrictEqual(workspaces2);
+    });
+
     it('detects private packages', async () => {
       setupProject(['packages/*']);
 

@@ -226,6 +226,8 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   }
 
   getWorkspaces() {
+    if (this._workspaces) { return this._workspaces; }
+
     let root = this.getContext('root');
     let workspaces = this.getContext('workspaces');
 
@@ -233,7 +235,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       globs: workspaces.map(glob => `${glob}/package.json`),
     });
 
-    return packageJSONFiles.map(file => {
+    this._workspaces = packageJSONFiles.map(file => {
       let pkg = JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
 
       let relativeRoot = path.dirname(file);
@@ -246,5 +248,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
         isReleased: false,
       };
     });
+
+    return this._workspaces;
   }
 };
