@@ -76,9 +76,7 @@ class JSONFile {
   }
 
   write() {
-    let contents = JSON
-      .stringify(this.pkg, null, this.indent)
-      .replace(/\n/g, this.lineEndings);
+    let contents = JSON.stringify(this.pkg, null, this.indent).replace(/\n/g, this.lineEndings);
 
     fs.writeFileSync(this.filename, contents + this.trailingWhitespace, { encoding: 'utf8' });
   }
@@ -95,10 +93,18 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     this.registerPrompts({
       publish: {
         type: 'confirm',
-        message: context => {
-          const { tag, name } = context['release-it-yarn-workspaces'];
+        message: (context) => {
+          const { distTag, packageNames } = context['release-it-yarn-workspaces'];
 
-          return `Publish ${name}${tag === 'latest' ? '' : `@${tag}`} to npm?`;
+          const messages = [
+            'Preparing to publish:',
+            ...packageNames.map(
+              (name) => `    ${name}${distTag === 'latest' ? '' : `@${distTag}`}`
+            ),
+            '  Publish to npm:',
+          ];
+
+          return messages.join('\n');
         },
         default: true,
       },
@@ -146,12 +152,21 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       const { isPreRelease, preReleaseId } = parseVersion(version);
       distTag = this.options.distTag || isPreRelease ? preReleaseId : DEFAULT_TAG;
     }
-
-    this.setContext({ distTag });
-
     const workspaces = this.getWorkspaces();
+    const packageNames = workspaces.map((workspace) => workspace.name);
+
+    this.setContext({
+      distTag,
+      version,
+      packageNames,
+    });
 
     const task = async () => {
+      if (this.global.isDryRun) {
+        this.log.exec(`Bumping versions in ${packageNames.join(', ')}`);
+        return;
+      }
+
       workspaces.forEach(({ pkgInfo }) => {
         let { pkg } = pkgInfo;
         let originalVersion = pkg.version;
@@ -178,9 +193,9 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     if (this.options.publish === false) return;
 
     const tag = this.getContext('distTag');
-    const otpCallback = this.global.isCI ? null : task => this.step({ prompt: 'otp', task });
+    const otpCallback = this.global.isCI ? null : (task) => this.step({ prompt: 'otp', task });
     const task = async () => {
-      await this.eachWorkspace(async workspaceInfo => {
+      await this.eachWorkspace(async (workspaceInfo) => {
         await this.publish({ tag, workspaceInfo, otpCallback });
       });
     };
@@ -191,7 +206,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   async afterRelease() {
     let workspaces = this.getWorkspaces();
 
-    workspaces.forEach(workspaceInfo => {
+    workspaces.forEach((workspaceInfo) => {
       if (workspaceInfo.isReleased) {
         this.log.log(`🔗 ${this.getReleaseUrl(workspaceInfo)}`);
       }
@@ -203,14 +218,13 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
     if (dependencies) {
       for (let dependency in dependencies) {
-        if (workspaces.find(w => w.name === dependency)) {
+        if (workspaces.find((w) => w.name === dependency)) {
           const existingVersion = dependencies[dependency];
 
           dependencies[dependency] = buildReplacementDepencencyVersion(existingVersion, newVersion);
         }
       }
     }
-
   }
 
   async isRegistryUp() {
@@ -280,7 +294,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
           this.log.warn('The provided OTP is incorrect or has expired.');
         }
         if (otpCallback) {
-          return otpCallback(otp => this.publish({ workspaceInfo, tag, otp, otpCallback }));
+          return otpCallback((otp) => this.publish({ workspaceInfo, tag, otp, otpCallback }));
         }
       }
       throw err;
@@ -289,7 +303,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
   eachWorkspace(action) {
     return Promise.all(
-      this.getWorkspaces().map(async workspaceInfo => {
+      this.getWorkspaces().map(async (workspaceInfo) => {
         try {
           process.chdir(workspaceInfo.root);
           return await action(workspaceInfo);
@@ -301,16 +315,18 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   }
 
   getWorkspaces() {
-    if (this._workspaces) { return this._workspaces; }
+    if (this._workspaces) {
+      return this._workspaces;
+    }
 
     let root = this.getContext('root');
     let workspaces = this.getContext('workspaces');
 
     let packageJSONFiles = walkSync('.', {
-      globs: workspaces.map(glob => `${glob}/package.json`),
+      globs: workspaces.map((glob) => `${glob}/package.json`),
     });
 
-    this._workspaces = packageJSONFiles.map(file => {
+    this._workspaces = packageJSONFiles.map((file) => {
       let absolutePath = path.join(root, file);
       let pkgInfo = new JSONFile(absolutePath);
 
