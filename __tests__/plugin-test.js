@@ -167,6 +167,9 @@ describe('release-it-yarn-workspaces', () => {
     });
 
     it('updates dependencies / devDependencies of packages', async () => {
+      setupWorkspace({ name: 'derp' });
+      setupWorkspace({ name: 'qux' });
+
       setupWorkspace({
         name: 'baz',
 
@@ -174,7 +177,13 @@ describe('release-it-yarn-workspaces', () => {
           'foo': '^1.0.0'
         },
         devDependencies: {
-          'bar': '^1.0.0'
+          'bar': '~1.0.0'
+        },
+        optionalDependencies: {
+          'qux': '1.0.0'
+        },
+        peerDependencies: {
+          'derp': '^1.0.0',
         }
       });
 
@@ -186,13 +195,20 @@ describe('release-it-yarn-workspaces', () => {
 
       expect(pkg).toEqual({
         name: 'baz',
+        license: 'MIT',
         version: '1.0.1',
 
         dependencies: {
-          'foo': '^1.0.0'
+          'foo': '^1.0.1'
         },
         devDependencies: {
-          'bar': '^1.0.0'
+          'bar': '~1.0.1'
+        },
+        optionalDependencies: {
+          'qux': '1.0.1'
+        },
+        peerDependencies: {
+          'derp': '^1.0.1',
         }
       });
     });
