@@ -1,6 +1,6 @@
 {
   "name": "release-it-yarn-workspaces",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "release-it plugin for bumping and publishing yarn workspaces",
   "keywords": [
     "release",
