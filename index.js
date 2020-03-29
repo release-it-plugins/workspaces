@@ -312,17 +312,17 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     }
   }
 
-  eachWorkspace(action) {
-    return Promise.all(
-      this.getWorkspaces().map(async (workspaceInfo) => {
-        try {
-          process.chdir(workspaceInfo.root);
-          return await action(workspaceInfo);
-        } finally {
-          process.chdir(this.getContext('root'));
-        }
-      })
-    );
+  async eachWorkspace(action) {
+    let workspaces = this.getWorkspaces();
+
+    for (let workspaceInfo of workspaces) {
+      try {
+        process.chdir(workspaceInfo.root);
+        await action(workspaceInfo);
+      } finally {
+        process.chdir(this.getContext('root'));
+      }
+    }
   }
 
   getWorkspaces() {

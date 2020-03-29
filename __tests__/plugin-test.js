@@ -64,10 +64,14 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
     let response = commandResponses[relativeRoot] && commandResponses[relativeRoot][command];
 
     if (response) {
+      if (Array.isArray(response)) {
+        response = response.shift();
+      }
+
       if (typeof response === 'string') {
         return Promise.resolve(response);
       } else if (typeof response === 'object' && response !== null && response.reject === true) {
-        return Promise.reject(response.value);
+        return Promise.reject(new Error(response.value));
       }
     }
   };
