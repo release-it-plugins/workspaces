@@ -19,6 +19,7 @@ class TestPlugin extends Plugin {
 function buildPlugin(config = {}, _Plugin = TestPlugin) {
   const container = {};
   const commandResponses = {};
+  const promptResponses = {};
 
   const options = { [namespace]: config };
   const plugin = factory(_Plugin, { container, namespace, options });
@@ -26,6 +27,22 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
   plugin.log.log = (...args) => plugin.logs.push(args);
 
   plugin.commandResponses = commandResponses;
+  plugin.promptResponses = promptResponses;
+
+  // when in CI mode (all tests are ran in CI mode) `Plugin.prototype.step`
+  // goes through `spinner.show` (in normal mode it goes through `prompt.show`)
+  plugin.spinner.show = (options) => {
+    let relativeRoot = path.relative(plugin.context.root, process.cwd());
+    let response = promptResponses[relativeRoot] && promptResponses[relativeRoot][options.prompt];
+
+    if (Array.isArray(response)) {
+      response = response.shift();
+    }
+
+    if (options.enabled !== false) {
+      return options.task(response);
+    }
+  };
 
   // this works around a fairly fundamental issue in release-it's testing
   // harness which is that the ShellStub that is used specifically noop's when
@@ -35,8 +52,7 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
   // and intercepting them to return replacement values (this is done in
   // execFormattedCommand just below)
   container.shell.exec = Shell.prototype.exec;
-
-  plugin.shell.execFormattedCommand = async (command, options) => {
+  container.shell.execFormattedCommand = async (command, options) => {
     let relativeRoot = path.relative(plugin.context.root, process.cwd());
 
     plugin.commands.push({
@@ -45,8 +61,14 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
       options,
     });
 
-    if (commandResponses[command]) {
-      return Promise.resolve(commandResponses[command]);
+    let response = commandResponses[relativeRoot] && commandResponses[relativeRoot][command];
+
+    if (response) {
+      if (typeof response === 'string') {
+        return Promise.resolve(response);
+      } else if (typeof response === 'object' && response !== null && response.reject === true) {
+        return Promise.reject(response.value);
+      }
     }
   };
 
