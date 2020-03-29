@@ -405,6 +405,61 @@ describe('release-it-yarn-workspaces', () => {
         ]
       `);
     });
+
+    it('when publishing rejects requiring a one time password', async () => {
+      let plugin = buildPlugin();
+
+      plugin.commandResponses['packages/bar'] = {
+        'npm publish . --tag latest': [
+          {
+            reject: true,
+            value: 'This operation requires a one-time password',
+          },
+        ],
+      };
+
+      plugin.promptResponses['packages/bar'] = {
+        otp: '123456',
+      };
+
+      await runTasks(plugin);
+
+      expect(plugin.commands).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm publish . --tag latest",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/bar",
+          },
+          Object {
+            "command": "npm publish . --tag latest --otp 123456",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/bar",
+          },
+          Object {
+            "command": "npm publish . --tag latest --otp 123456",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/foo",
+          },
+        ]
+      `);
+    });
   });
 
   describe('format publish output', () => {
