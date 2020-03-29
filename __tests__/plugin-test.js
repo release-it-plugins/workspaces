@@ -135,14 +135,14 @@ describe('release-it-yarn-workspaces', () => {
             "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag latest  ",
+            "command": "npm publish . --tag latest",
             "options": Object {
               "write": false,
             },
             "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag latest  ",
+            "command": "npm publish . --tag latest",
             "options": Object {
               "write": false,
             },
@@ -255,14 +255,14 @@ describe('release-it-yarn-workspaces', () => {
             "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag latest  ",
+            "command": "npm publish . --tag latest",
             "options": Object {
               "write": false,
             },
             "relativeRoot": "dist/packages/qux",
           },
           Object {
-            "command": "npm publish . --tag latest  ",
+            "command": "npm publish . --tag latest",
             "options": Object {
               "write": false,
             },
@@ -301,14 +301,14 @@ describe('release-it-yarn-workspaces', () => {
             "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag foo  ",
+            "command": "npm publish . --tag foo",
             "options": Object {
               "write": false,
             },
             "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag foo  ",
+            "command": "npm publish . --tag foo",
             "options": Object {
               "write": false,
             },
@@ -326,14 +326,14 @@ describe('release-it-yarn-workspaces', () => {
       expect(plugin.commands).toMatchInlineSnapshot(`
         Array [
           Object {
-            "command": "npm publish . --tag latest  ",
+            "command": "npm publish . --tag latest",
             "options": Object {
               "write": false,
             },
             "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag latest  ",
+            "command": "npm publish . --tag latest",
             "options": Object {
               "write": false,
             },
@@ -363,14 +363,14 @@ describe('release-it-yarn-workspaces', () => {
             "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag beta  ",
+            "command": "npm publish . --tag beta",
             "options": Object {
               "write": false,
             },
             "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag beta  ",
+            "command": "npm publish . --tag beta",
             "options": Object {
               "write": false,
             },
