@@ -1,3 +1,12 @@
+## v1.0.2 (2020-03-29)
+
+#### :bug: Bug Fix
+* [#13](https://github.com/rwjblue/release-it-yarn-workspaces/pull/13) Ensure OTP prompting works correctly ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v1.0.1 (2020-03-27)
 
 #### :bug: Bug Fix
