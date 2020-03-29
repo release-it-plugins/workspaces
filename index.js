@@ -184,11 +184,17 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   async release() {
     if (this.options.publish === false) return;
 
+    // creating a stable object that is shared across all package publishes
+    // this ensures that we don't accidentally prompt multiple times (e.g. once
+    // per package) due to loosing the otp value after each `this.publish` call
+    const otp = {
+      value: this.options.otp,
+    };
+
     const tag = this.getContext('distTag');
-    const otpCallback = this.global.isCI ? null : (task) => this.step({ prompt: 'otp', task });
     const task = async () => {
       await this.eachWorkspace(async (workspaceInfo) => {
-        await this.publish({ tag, workspaceInfo, otpCallback });
+        await this.publish({ tag, workspaceInfo, otp });
       });
     };
 
@@ -274,9 +280,9 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     return this.getContext('publishConfig.registry') || NPM_DEFAULT_REGISTRY;
   }
 
-  async publish({ tag, workspaceInfo, otp, otpCallback } = {}) {
-    const otpArg = otp ? `--otp ${otp}` : '';
-    const dryRunArg = this.global.isDryRun ? '--dry-run' : '';
+  async publish({ tag, workspaceInfo, otp } = {}) {
+    const otpArg = otp.value ? ` --otp ${otp.value}` : '';
+    const dryRunArg = this.global.isDryRun ? ' --dry-run' : '';
 
     if (workspaceInfo.isPrivate) {
       this.log.warn(`${workspaceInfo.name}: Skip publish (package is private)`);
@@ -284,7 +290,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     }
 
     try {
-      await this.exec(`npm publish . --tag ${tag} ${otpArg} ${dryRunArg}`, {
+      await this.exec(`npm publish . --tag ${tag}${otpArg}${dryRunArg}`, {
         options,
       });
 
@@ -292,28 +298,31 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     } catch (err) {
       this.debug(err);
       if (/one-time pass/.test(err)) {
-        if (otp != null) {
+        if (otp.value != null) {
           this.log.warn('The provided OTP is incorrect or has expired.');
         }
-        if (otpCallback) {
-          return otpCallback((otp) => this.publish({ workspaceInfo, tag, otp, otpCallback }));
-        }
+
+        await this.step({ prompt: 'otp', task(newOtp) {
+          otp.value = newOtp;
+        }});
+
+        return await this.publish(...arguments);
       }
       throw err;
     }
   }
 
-  eachWorkspace(action) {
-    return Promise.all(
-      this.getWorkspaces().map(async (workspaceInfo) => {
-        try {
-          process.chdir(workspaceInfo.root);
-          return await action(workspaceInfo);
-        } finally {
-          process.chdir(this.getContext('root'));
-        }
-      })
-    );
+  async eachWorkspace(action) {
+    let workspaces = this.getWorkspaces();
+
+    for (let workspaceInfo of workspaces) {
+      try {
+        process.chdir(workspaceInfo.root);
+        await action(workspaceInfo);
+      } finally {
+        process.chdir(this.getContext('root'));
+      }
+    }
   }
 
   getWorkspaces() {

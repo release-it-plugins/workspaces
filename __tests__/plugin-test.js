@@ -19,6 +19,7 @@ class TestPlugin extends Plugin {
 function buildPlugin(config = {}, _Plugin = TestPlugin) {
   const container = {};
   const commandResponses = {};
+  const promptResponses = {};
 
   const options = { [namespace]: config };
   const plugin = factory(_Plugin, { container, namespace, options });
@@ -26,6 +27,22 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
   plugin.log.log = (...args) => plugin.logs.push(args);
 
   plugin.commandResponses = commandResponses;
+  plugin.promptResponses = promptResponses;
+
+  // when in CI mode (all tests are ran in CI mode) `Plugin.prototype.step`
+  // goes through `spinner.show` (in normal mode it goes through `prompt.show`)
+  plugin.spinner.show = (options) => {
+    let relativeRoot = path.relative(plugin.context.root, process.cwd());
+    let response = promptResponses[relativeRoot] && promptResponses[relativeRoot][options.prompt];
+
+    if (Array.isArray(response)) {
+      response = response.shift();
+    }
+
+    if (options.enabled !== false) {
+      return options.task(response);
+    }
+  };
 
   // this works around a fairly fundamental issue in release-it's testing
   // harness which is that the ShellStub that is used specifically noop's when
@@ -35,8 +52,7 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
   // and intercepting them to return replacement values (this is done in
   // execFormattedCommand just below)
   container.shell.exec = Shell.prototype.exec;
-
-  plugin.shell.execFormattedCommand = async (command, options) => {
+  container.shell.execFormattedCommand = async (command, options) => {
     let relativeRoot = path.relative(plugin.context.root, process.cwd());
 
     plugin.commands.push({
@@ -45,8 +61,18 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
       options,
     });
 
-    if (commandResponses[command]) {
-      return Promise.resolve(commandResponses[command]);
+    let response = commandResponses[relativeRoot] && commandResponses[relativeRoot][command];
+
+    if (response) {
+      if (Array.isArray(response)) {
+        response = response.shift();
+      }
+
+      if (typeof response === 'string') {
+        return Promise.resolve(response);
+      } else if (typeof response === 'object' && response !== null && response.reject === true) {
+        return Promise.reject(new Error(response.value));
+      }
     }
   };
 
@@ -135,14 +161,14 @@ describe('release-it-yarn-workspaces', () => {
             "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag latest  ",
+            "command": "npm publish . --tag latest",
             "options": Object {
               "write": false,
             },
             "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag latest  ",
+            "command": "npm publish . --tag latest",
             "options": Object {
               "write": false,
             },
@@ -255,14 +281,14 @@ describe('release-it-yarn-workspaces', () => {
             "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag latest  ",
+            "command": "npm publish . --tag latest",
             "options": Object {
               "write": false,
             },
             "relativeRoot": "dist/packages/qux",
           },
           Object {
-            "command": "npm publish . --tag latest  ",
+            "command": "npm publish . --tag latest",
             "options": Object {
               "write": false,
             },
@@ -301,14 +327,14 @@ describe('release-it-yarn-workspaces', () => {
             "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag foo  ",
+            "command": "npm publish . --tag foo",
             "options": Object {
               "write": false,
             },
             "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag foo  ",
+            "command": "npm publish . --tag foo",
             "options": Object {
               "write": false,
             },
@@ -326,14 +352,14 @@ describe('release-it-yarn-workspaces', () => {
       expect(plugin.commands).toMatchInlineSnapshot(`
         Array [
           Object {
-            "command": "npm publish . --tag latest  ",
+            "command": "npm publish . --tag latest",
             "options": Object {
               "write": false,
             },
             "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag latest  ",
+            "command": "npm publish . --tag latest",
             "options": Object {
               "write": false,
             },
@@ -363,14 +389,69 @@ describe('release-it-yarn-workspaces', () => {
             "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag beta  ",
+            "command": "npm publish . --tag beta",
             "options": Object {
               "write": false,
             },
             "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag beta  ",
+            "command": "npm publish . --tag beta",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/foo",
+          },
+        ]
+      `);
+    });
+
+    it('when publishing rejects requiring a one time password', async () => {
+      let plugin = buildPlugin();
+
+      plugin.commandResponses['packages/bar'] = {
+        'npm publish . --tag latest': [
+          {
+            reject: true,
+            value: 'This operation requires a one-time password',
+          },
+        ],
+      };
+
+      plugin.promptResponses['packages/bar'] = {
+        otp: '123456',
+      };
+
+      await runTasks(plugin);
+
+      expect(plugin.commands).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm publish . --tag latest",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/bar",
+          },
+          Object {
+            "command": "npm publish . --tag latest --otp 123456",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/bar",
+          },
+          Object {
+            "command": "npm publish . --tag latest --otp 123456",
             "options": Object {
               "write": false,
             },
