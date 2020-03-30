@@ -104,6 +104,14 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
         type: 'input',
         message: () => `Please enter OTP for npm:`,
       },
+      'publish-as-public': {
+        type: 'confirm',
+        message(context) {
+          const { packageName } = context;
+
+          return `Publishing ${packageName} failed because \`publishConfig.access\` is not set in its \`package.json\`.\n  Would you like to publish ${packageName} as a public package?`;
+        },
+      },
     });
 
     const { publishConfig, workspaces } = require(path.resolve(ROOT_MANIFEST_PATH));
@@ -280,8 +288,10 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     return this.getContext('publishConfig.registry') || NPM_DEFAULT_REGISTRY;
   }
 
-  async publish({ tag, workspaceInfo, otp } = {}) {
+  async publish({ tag, workspaceInfo, otp, access } = {}) {
+    const isScoped = workspaceInfo.name.startsWith('@');
     const otpArg = otp.value ? ` --otp ${otp.value}` : '';
+    const accessArg = access ? ` --access ${access}` : '';
     const dryRunArg = this.global.isDryRun ? ' --dry-run' : '';
 
     if (workspaceInfo.isPrivate) {
@@ -290,7 +300,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     }
 
     try {
-      await this.exec(`npm publish . --tag ${tag}${otpArg}${dryRunArg}`, {
+      await this.exec(`npm publish . --tag ${tag}${accessArg}${otpArg}${dryRunArg}`, {
         options,
       });
 
@@ -309,7 +319,22 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
           },
         });
 
-        return await this.publish(...arguments);
+        return await this.publish({ tag, workspaceInfo, otp, access });
+      } else if (isScoped && /private packages/.test(err)) {
+        let publishAsPublic = false;
+        await this.step({
+          prompt: 'publish-as-public',
+          packageName: workspaceInfo.name,
+          task(value) {
+            publishAsPublic = value;
+          },
+        });
+
+        if (publishAsPublic) {
+          return await this.publish({ tag, workspaceInfo, otp, access: 'public' });
+        } else {
+          this.log.warn(`${workspaceInfo.name} was not published.`);
+        }
       }
       throw err;
     }
