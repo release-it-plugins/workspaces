@@ -1,3 +1,15 @@
+## v1.1.0 (2020-03-30)
+
+#### :rocket: Enhancement
+* [#16](https://github.com/rwjblue/release-it-yarn-workspaces/pull/16) Prompt if publishing scoped package fails with private error. ([@rwjblue](https://github.com/rwjblue))
+
+#### :house: Internal
+* [#15](https://github.com/rwjblue/release-it-yarn-workspaces/pull/15) Fix prettier setup. ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v1.0.2 (2020-03-29)
 
 #### :bug: Bug Fix
