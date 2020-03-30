@@ -107,15 +107,29 @@ describe('release-it-yarn-workspaces', () => {
       },
       _pkg
     );
-    let name = pkg.name;
 
-    dir.write({
-      packages: {
-        [name]: {
-          'package.json': json(pkg),
+    let hasScope = pkg.name.startsWith('@');
+    if (hasScope) {
+      let [scope, name] = pkg.name.split('/');
+
+      dir.write({
+        packages: {
+          [scope]: {
+            [name]: {
+              'package.json': json(pkg),
+            },
+          },
         },
-      },
-    });
+      });
+    } else {
+      dir.write({
+        packages: {
+          [pkg.name]: {
+            'package.json': json(pkg),
+          },
+        },
+      });
+    }
   }
 
   function readWorkspacePackage(name) {
