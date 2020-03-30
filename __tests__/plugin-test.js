@@ -253,6 +253,66 @@ describe('release-it-yarn-workspaces', () => {
       });
     });
 
+    it('prompts to ask if the package should be public when private package publishing fails', async () => {
+      setupProject(['packages/@scope-name/*']);
+      setupWorkspace({ name: '@scope-name/bar' });
+      setupWorkspace({ name: '@scope-name/foo' });
+
+      let plugin = buildPlugin();
+
+      plugin.commandResponses['packages/@scope-name/bar'] = {
+        'npm publish . --tag latest': [
+          {
+            reject: true,
+            value:
+              'Payment Required - PUT https://registry.npmjs.org/@scope-name/bar - You must sign up for private packages',
+          },
+        ],
+      };
+
+      plugin.promptResponses['packages/@scope-name/bar'] = {
+        'publish-as-public': true,
+      };
+
+      await runTasks(plugin);
+
+      expect(plugin.commands).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "options": Object {},
+            "relativeRoot": "",
+          },
+          Object {
+            "command": "npm publish . --tag latest",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/@scope-name/bar",
+          },
+          Object {
+            "command": "npm publish . --tag latest --access public",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/@scope-name/bar",
+          },
+          Object {
+            "command": "npm publish . --tag latest",
+            "options": Object {
+              "write": false,
+            },
+            "relativeRoot": "packages/@scope-name/foo",
+          },
+        ]
+      `);
+    });
+
     it('can specify custom workspaces (overrides package.json settings)', async () => {
       function setupDistWorkspace(_pkg) {
         let pkg = Object.assign(
