@@ -302,9 +302,12 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
           this.log.warn('The provided OTP is incorrect or has expired.');
         }
 
-        await this.step({ prompt: 'otp', task(newOtp) {
-          otp.value = newOtp;
-        }});
+        await this.step({
+          prompt: 'otp',
+          task(newOtp) {
+            otp.value = newOtp;
+          },
+        });
 
         return await this.publish(...arguments);
       }
