@@ -1,3 +1,15 @@
+## v1.1.1 (2020-03-31)
+
+#### :bug: Bug Fix
+* [#17](https://github.com/rwjblue/release-it-yarn-workspaces/pull/17) Do not list private packages in "should we publish" prompt. ([@rwjblue](https://github.com/rwjblue))
+
+#### :house: Internal
+* [#18](https://github.com/rwjblue/release-it-yarn-workspaces/pull/18) Refactor local development flows. ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v1.1.0 (2020-03-30)
 
 #### :rocket: Enhancement
