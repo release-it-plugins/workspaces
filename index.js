@@ -94,7 +94,8 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       publish: {
         type: 'confirm',
         message: (context) => {
-          const { distTag, packageNames } = context['release-it-yarn-workspaces'];
+          const { distTag } = context['release-it-yarn-workspaces'];
+          const { packageNames } = context;
 
           return this._formatPublishMessage(distTag, packageNames);
         },
@@ -158,7 +159,6 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     this.setContext({
       distTag,
       version,
-      packageNames,
     });
 
     const task = async () => {
@@ -206,7 +206,8 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       });
     };
 
-    await this.step({ task, label: 'npm publish', prompt: 'publish' });
+    const packageNames = this.getWorkspaces().filter((w) => w.isPrivate);
+    await this.step({ packageNames, task, label: 'npm publish', prompt: 'publish' });
   }
 
   async afterRelease() {
