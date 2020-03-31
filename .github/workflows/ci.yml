@@ -19,7 +19,5 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: install dependencies
       run: yarn install --non-interactive
-    - name: lint
-      run: yarn lint:js
     - name: test
       run: yarn test
