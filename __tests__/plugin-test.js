@@ -843,5 +843,7 @@ describe('release-it-yarn-workspaces', () => {
     updatesTo({ existing: '~1.0.0', new: '2.0.0', expected: '~2.0.0' });
     updatesTo({ existing: '1.0.0', new: '2.0.0', expected: '2.0.0' });
     updatesTo({ existing: '^1.0.0', new: '2.0.0-beta.1', expected: '^2.0.0-beta.1' });
+    updatesTo({ existing: '^1.0.0-beta.1', new: '1.0.0-beta.2', expected: '^1.0.0-beta.2' });
+    updatesTo({ existing: '^1.0.0-beta.1', new: '1.0.0', expected: '^1.0.0' });
   });
 });
