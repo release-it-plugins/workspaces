@@ -818,4 +818,30 @@ describe('release-it-yarn-workspaces', () => {
       });
     });
   });
+
+  describe('_updateDependencies', () => {
+    function updatesTo({ existing, new: newVersion, expected }) {
+      it(`updates ${existing} to ${newVersion}`, () => {
+        setupProject(['packages/*']);
+
+        setupWorkspace({ name: 'foo' });
+        setupWorkspace({ name: 'bar' });
+
+        let plugin = buildPlugin();
+
+        let dependencies = {
+          foo: existing,
+        };
+
+        plugin._updateDependencies(dependencies, newVersion);
+
+        expect(dependencies.foo).toEqual(expected);
+      });
+    }
+
+    updatesTo({ existing: '^1.0.0', new: '2.0.0', expected: '^2.0.0' });
+    updatesTo({ existing: '~1.0.0', new: '2.0.0', expected: '~2.0.0' });
+    updatesTo({ existing: '1.0.0', new: '2.0.0', expected: '2.0.0' });
+    updatesTo({ existing: '^1.0.0', new: '2.0.0-beta.1', expected: '^2.0.0-beta.1' });
+  });
 });
