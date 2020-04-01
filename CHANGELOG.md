@@ -1,3 +1,17 @@
+## v1.1.2 (2020-04-01)
+
+#### :bug: Bug Fix
+* [#25](https://github.com/rwjblue/release-it-yarn-workspaces/pull/25) Pass specific package paths to `npm publish` (avoid `process.chdir`). ([@rwjblue](https://github.com/rwjblue))
+* [#24](https://github.com/rwjblue/release-it-yarn-workspaces/pull/24) Ensure new version is updated appropriately in dependencies. ([@rwjblue](https://github.com/rwjblue))
+* [#22](https://github.com/rwjblue/release-it-yarn-workspaces/pull/22) Ensure prompts have access to required information. ([@rwjblue](https://github.com/rwjblue))
+
+#### :house: Internal
+* [#23](https://github.com/rwjblue/release-it-yarn-workspaces/pull/23) Create unified set of plugin operations for test assertions. ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v1.1.1 (2020-03-31)
 
 #### :bug: Bug Fix
