@@ -94,10 +94,9 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       publish: {
         type: 'confirm',
         message: (context) => {
-          const { distTag } = context['release-it-yarn-workspaces'];
-          const { packageNames } = context;
+          const { distTag, packagesToPublish } = context['release-it-yarn-workspaces'];
 
-          return this._formatPublishMessage(distTag, packageNames);
+          return this._formatPublishMessage(distTag, packagesToPublish);
         },
         default: true,
       },
@@ -108,9 +107,9 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       'publish-as-public': {
         type: 'confirm',
         message(context) {
-          const { packageName } = context;
+          const { currentPackage } = context['release-it-yarn-workspaces'];
 
-          return `Publishing ${packageName} failed because \`publishConfig.access\` is not set in its \`package.json\`.\n  Would you like to publish ${packageName} as a public package?`;
+          return `Publishing ${currentPackage.name} failed because \`publishConfig.access\` is not set in its \`package.json\`.\n  Would you like to publish ${currentPackage.name} as a public package?`;
         },
       },
     });
@@ -154,16 +153,20 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       distTag = this.options.distTag || isPreRelease ? preReleaseId : DEFAULT_TAG;
     }
     const workspaces = this.getWorkspaces();
-    const packageNames = workspaces.map((workspace) => workspace.name);
+
+    const packagesToPublish = workspaces
+      .filter((w) => !w.isPrivate)
+      .map((workspace) => workspace.name);
 
     this.setContext({
       distTag,
+      packagesToPublish,
       version,
     });
 
     const task = async () => {
       if (this.global.isDryRun) {
-        this.log.exec(`Bumping versions in ${packageNames.join(', ')}`);
+        this.log.exec(`Bumping versions in ${workspaces.map((w) => w.name).join(', ')}`);
         return;
       }
 
@@ -206,8 +209,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       });
     };
 
-    const packageNames = this.getWorkspaces().filter((w) => w.isPrivate);
-    await this.step({ packageNames, task, label: 'npm publish', prompt: 'publish' });
+    await this.step({ task, label: 'npm publish', prompt: 'publish' });
   }
 
   async afterRelease() {
@@ -323,9 +325,9 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
         return await this.publish({ tag, workspaceInfo, otp, access });
       } else if (isScoped && /private packages/.test(err)) {
         let publishAsPublic = false;
+
         await this.step({
           prompt: 'publish-as-public',
-          packageName: workspaceInfo.name,
           task(value) {
             publishAsPublic = value;
           },
@@ -346,10 +348,18 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
     for (let workspaceInfo of workspaces) {
       try {
+        this.setContext({
+          currentPackage: workspaceInfo,
+        });
+
         process.chdir(workspaceInfo.root);
         await action(workspaceInfo);
       } finally {
         process.chdir(this.getContext('root'));
+
+        this.setContext({
+          currentPackage: null,
+        });
       }
     }
   }
