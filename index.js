@@ -47,16 +47,11 @@ function parseVersion(raw) {
 }
 
 function buildReplacementDepencencyVersion(existingVersion, newVersion) {
-  let isExistingVersionExact = semver.parse(existingVersion);
+  let firstChar = existingVersion[0];
 
-  if (isExistingVersionExact) {
-    return newVersion;
-  }
-
-  // coerce strips any leading `^` or `~`
-  let existingVersionCoerced = semver.coerce(existingVersion);
-  if (existingVersionCoerced) {
-    return existingVersion.replace(existingVersionCoerced.toString(), newVersion);
+  // preserve existing floating constraint
+  if (['^', '~'].includes(firstChar)) {
+    return `${firstChar}${newVersion}`;
   }
 
   return newVersion;
