@@ -11,6 +11,7 @@ class TestPlugin extends Plugin {
   constructor() {
     super(...arguments);
 
+    this.operations = [];
     this.commands = [];
     this.prompts = [];
     this.logs = [];
@@ -25,7 +26,14 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
   const options = { [namespace]: config };
   const plugin = factory(_Plugin, { container, namespace, options });
 
-  plugin.log.log = (...args) => plugin.logs.push(args);
+  plugin.log.log = (...args) => {
+    plugin.logs.push(args);
+
+    plugin.operations.push({
+      operationType: 'log',
+      messages: args,
+    });
+  };
 
   plugin.commandResponses = commandResponses;
   plugin.promptResponses = promptResponses;
@@ -43,6 +51,7 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
       //
       // https://github.com/release-it/release-it/blob/13.5.0/lib/prompt.js#L19-L24
       const promptDetails = Object.assign({}, prompt, {
+        operationType: 'prompt',
         name: options.prompt,
         message: prompt.message(options.context),
         choices: 'choices' in prompt && prompt.choices(options.context),
@@ -72,11 +81,15 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
   container.shell.execFormattedCommand = async (command, options) => {
     let relativeRoot = path.relative(plugin.context.root, process.cwd());
 
-    plugin.commands.push({
+    const operation = {
+      operationType: 'command',
       relativeRoot,
       command,
       options,
-    });
+    };
+
+    plugin.commands.push(operation);
+    plugin.operations.push(operation);
 
     let response = commandResponses[relativeRoot] && commandResponses[relativeRoot][command];
 
@@ -183,16 +196,19 @@ describe('release-it-yarn-workspaces', () => {
         Array [
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
+            "operationType": "command",
             "options": Object {},
             "relativeRoot": "",
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
+            "operationType": "command",
             "options": Object {},
             "relativeRoot": "",
           },
           Object {
             "command": "npm publish . --tag latest",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -200,6 +216,7 @@ describe('release-it-yarn-workspaces', () => {
           },
           Object {
             "command": "npm publish . --tag latest",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -229,6 +246,7 @@ describe('release-it-yarn-workspaces', () => {
             foo
           Publish to npm:",
             "name": "publish",
+            "operationType": "prompt",
             "transformer": false,
             "type": "confirm",
           },
@@ -313,16 +331,19 @@ describe('release-it-yarn-workspaces', () => {
         Array [
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
+            "operationType": "command",
             "options": Object {},
             "relativeRoot": "",
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
+            "operationType": "command",
             "options": Object {},
             "relativeRoot": "",
           },
           Object {
             "command": "npm publish . --tag latest",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -330,6 +351,7 @@ describe('release-it-yarn-workspaces', () => {
           },
           Object {
             "command": "npm publish . --tag latest --access public",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -337,6 +359,7 @@ describe('release-it-yarn-workspaces', () => {
           },
           Object {
             "command": "npm publish . --tag latest",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -355,6 +378,7 @@ describe('release-it-yarn-workspaces', () => {
             @scope-name/foo
           Publish to npm:",
             "name": "publish",
+            "operationType": "prompt",
             "transformer": false,
             "type": "confirm",
           },
@@ -363,6 +387,7 @@ describe('release-it-yarn-workspaces', () => {
             "message": "Publishing @scope-name/bar failed because \`publishConfig.access\` is not set in its \`package.json\`.
           Would you like to publish @scope-name/bar as a public package?",
             "name": "publish-as-public",
+            "operationType": "prompt",
             "transformer": false,
             "type": "confirm",
           },
@@ -403,16 +428,19 @@ describe('release-it-yarn-workspaces', () => {
         Array [
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
+            "operationType": "command",
             "options": Object {},
             "relativeRoot": "",
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
+            "operationType": "command",
             "options": Object {},
             "relativeRoot": "",
           },
           Object {
             "command": "npm publish . --tag latest",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -420,6 +448,7 @@ describe('release-it-yarn-workspaces', () => {
           },
           Object {
             "command": "npm publish . --tag latest",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -449,6 +478,7 @@ describe('release-it-yarn-workspaces', () => {
             zorp
           Publish to npm:",
             "name": "publish",
+            "operationType": "prompt",
             "transformer": false,
             "type": "confirm",
           },
@@ -465,16 +495,19 @@ describe('release-it-yarn-workspaces', () => {
         Array [
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
+            "operationType": "command",
             "options": Object {},
             "relativeRoot": "",
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
+            "operationType": "command",
             "options": Object {},
             "relativeRoot": "",
           },
           Object {
             "command": "npm publish . --tag foo",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -482,6 +515,7 @@ describe('release-it-yarn-workspaces', () => {
           },
           Object {
             "command": "npm publish . --tag foo",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -500,6 +534,7 @@ describe('release-it-yarn-workspaces', () => {
         Array [
           Object {
             "command": "npm publish . --tag latest",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -507,6 +542,7 @@ describe('release-it-yarn-workspaces', () => {
           },
           Object {
             "command": "npm publish . --tag latest",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -527,16 +563,19 @@ describe('release-it-yarn-workspaces', () => {
         Array [
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
+            "operationType": "command",
             "options": Object {},
             "relativeRoot": "",
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
+            "operationType": "command",
             "options": Object {},
             "relativeRoot": "",
           },
           Object {
             "command": "npm publish . --tag beta",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -544,6 +583,7 @@ describe('release-it-yarn-workspaces', () => {
           },
           Object {
             "command": "npm publish . --tag beta",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -575,16 +615,19 @@ describe('release-it-yarn-workspaces', () => {
         Array [
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
+            "operationType": "command",
             "options": Object {},
             "relativeRoot": "",
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
+            "operationType": "command",
             "options": Object {},
             "relativeRoot": "",
           },
           Object {
             "command": "npm publish . --tag latest",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -592,6 +635,7 @@ describe('release-it-yarn-workspaces', () => {
           },
           Object {
             "command": "npm publish . --tag latest --otp 123456",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -599,6 +643,7 @@ describe('release-it-yarn-workspaces', () => {
           },
           Object {
             "command": "npm publish . --tag latest --otp 123456",
+            "operationType": "command",
             "options": Object {
               "write": false,
             },
@@ -617,6 +662,7 @@ describe('release-it-yarn-workspaces', () => {
             foo
           Publish to npm:",
             "name": "publish",
+            "operationType": "prompt",
             "transformer": false,
             "type": "confirm",
           },
@@ -624,6 +670,7 @@ describe('release-it-yarn-workspaces', () => {
             "choices": false,
             "message": "Please enter OTP for npm:",
             "name": "otp",
+            "operationType": "prompt",
             "transformer": false,
             "type": "input",
           },
