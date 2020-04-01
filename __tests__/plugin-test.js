@@ -12,6 +12,7 @@ class TestPlugin extends Plugin {
     super(...arguments);
 
     this.commands = [];
+    this.prompts = [];
     this.logs = [];
   }
 }
@@ -34,6 +35,22 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
   plugin.spinner.show = (options) => {
     let relativeRoot = path.relative(plugin.context.root, process.cwd());
     let response = promptResponses[relativeRoot] && promptResponses[relativeRoot][options.prompt];
+
+    if (options.prompt) {
+      let prompt = plugin.prompt.prompts[plugin.namespace][options.prompt];
+
+      // uses the same prompting logic from release-it itself:
+      //
+      // https://github.com/release-it/release-it/blob/13.5.0/lib/prompt.js#L19-L24
+      const promptDetails = Object.assign({}, prompt, {
+        name: options.prompt,
+        message: prompt.message(options.context),
+        choices: 'choices' in prompt && prompt.choices(options.context),
+        transformer: 'transformer' in prompt && prompt.transformer(options.context),
+      });
+
+      plugin.prompts.push(promptDetails);
+    }
 
     if (Array.isArray(response)) {
       response = response.shift();
@@ -202,6 +219,22 @@ describe('release-it-yarn-workspaces', () => {
         ]
       `);
 
+      expect(plugin.prompts).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "choices": false,
+            "default": true,
+            "message": "Preparing to publish:
+            bar
+            foo
+          Publish to npm:",
+            "name": "publish",
+            "transformer": false,
+            "type": "confirm",
+          },
+        ]
+      `);
+
       expect(readWorkspacePackage('bar').version).toEqual('1.0.1');
       expect(readWorkspacePackage('foo').version).toEqual('1.0.1');
     });
@@ -311,6 +344,30 @@ describe('release-it-yarn-workspaces', () => {
           },
         ]
       `);
+
+      expect(plugin.prompts).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "choices": false,
+            "default": true,
+            "message": "Preparing to publish:
+            @scope-name/bar
+            @scope-name/foo
+          Publish to npm:",
+            "name": "publish",
+            "transformer": false,
+            "type": "confirm",
+          },
+          Object {
+            "choices": false,
+            "message": "Publishing @scope-name/bar failed because \`publishConfig.access\` is not set in its \`package.json\`.
+          Would you like to publish @scope-name/bar as a public package?",
+            "name": "publish-as-public",
+            "transformer": false,
+            "type": "confirm",
+          },
+        ]
+      `);
     });
 
     it('can specify custom workspaces (overrides package.json settings)', async () => {
@@ -379,6 +436,22 @@ describe('release-it-yarn-workspaces', () => {
           Array [
             "🔗 https://www.npmjs.com/package/zorp",
           ],
+        ]
+      `);
+
+      expect(plugin.prompts).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "choices": false,
+            "default": true,
+            "message": "Preparing to publish:
+            qux
+            zorp
+          Publish to npm:",
+            "name": "publish",
+            "transformer": false,
+            "type": "confirm",
+          },
         ]
       `);
     });
@@ -530,6 +603,29 @@ describe('release-it-yarn-workspaces', () => {
               "write": false,
             },
             "relativeRoot": "packages/foo",
+          },
+        ]
+      `);
+
+      expect(plugin.prompts).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "choices": false,
+            "default": true,
+            "message": "Preparing to publish:
+            bar
+            foo
+          Publish to npm:",
+            "name": "publish",
+            "transformer": false,
+            "type": "confirm",
+          },
+          Object {
+            "choices": false,
+            "message": "Please enter OTP for npm:",
+            "name": "otp",
+            "transformer": false,
+            "type": "input",
           },
         ]
       `);
