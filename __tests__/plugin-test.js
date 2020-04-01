@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 const { createTempDir } = require('broccoli-test-helper');
 const { factory, runTasks } = require('release-it/test/util');
 const Shell = require('release-it/lib/shell');
@@ -41,7 +40,9 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
   // when in CI mode (all tests are ran in CI mode) `Plugin.prototype.step`
   // goes through `spinner.show` (in normal mode it goes through `prompt.show`)
   plugin.spinner.show = (options) => {
-    let relativeRoot = path.relative(plugin.context.root, process.cwd());
+    let relativeRoot = plugin.context.currentPackage
+      ? plugin.context.currentPackage.relativeRoot
+      : '.';
     let response = promptResponses[relativeRoot] && promptResponses[relativeRoot][options.prompt];
 
     if (options.prompt) {
@@ -79,11 +80,8 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
   // execFormattedCommand just below)
   container.shell.exec = Shell.prototype.exec;
   container.shell.execFormattedCommand = async (command, options) => {
-    let relativeRoot = path.relative(plugin.context.root, process.cwd());
-
     const operation = {
       operationType: 'command',
-      relativeRoot,
       command,
       options,
     };
@@ -91,7 +89,7 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
     plugin.commands.push(operation);
     plugin.operations.push(operation);
 
-    let response = commandResponses[relativeRoot] && commandResponses[relativeRoot][command];
+    let response = commandResponses[command];
 
     if (response) {
       if (Array.isArray(response)) {
@@ -198,29 +196,25 @@ describe('release-it-yarn-workspaces', () => {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": Object {},
-            "relativeRoot": "",
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": Object {},
-            "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag latest",
+            "command": "npm publish packages/bar --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag latest",
+            "command": "npm publish packages/foo --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/foo",
           },
           Object {
             "messages": Array [
@@ -295,15 +289,13 @@ describe('release-it-yarn-workspaces', () => {
 
       let plugin = buildPlugin();
 
-      plugin.commandResponses['packages/@scope-name/bar'] = {
-        'npm publish . --tag latest': [
-          {
-            reject: true,
-            value:
-              'Payment Required - PUT https://registry.npmjs.org/@scope-name/bar - You must sign up for private packages',
-          },
-        ],
-      };
+      plugin.commandResponses['npm publish packages/@scope-name/bar --tag latest'] = [
+        {
+          reject: true,
+          value:
+            'Payment Required - PUT https://registry.npmjs.org/@scope-name/bar - You must sign up for private packages',
+        },
+      ];
 
       plugin.promptResponses['packages/@scope-name/bar'] = {
         'publish-as-public': true,
@@ -317,37 +309,32 @@ describe('release-it-yarn-workspaces', () => {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": Object {},
-            "relativeRoot": "",
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": Object {},
-            "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag latest",
+            "command": "npm publish packages/@scope-name/bar --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/@scope-name/bar",
           },
           Object {
-            "command": "npm publish . --tag latest --access public",
+            "command": "npm publish packages/@scope-name/bar --tag latest --access public",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/@scope-name/bar",
           },
           Object {
-            "command": "npm publish . --tag latest",
+            "command": "npm publish packages/@scope-name/foo --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/@scope-name/foo",
           },
           Object {
             "messages": Array [
@@ -400,29 +387,25 @@ describe('release-it-yarn-workspaces', () => {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": Object {},
-            "relativeRoot": "",
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": Object {},
-            "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag latest",
+            "command": "npm publish dist/packages/qux --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "dist/packages/qux",
           },
           Object {
-            "command": "npm publish . --tag latest",
+            "command": "npm publish dist/packages/zorp --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "dist/packages/zorp",
           },
           Object {
             "messages": Array [
@@ -451,29 +434,25 @@ describe('release-it-yarn-workspaces', () => {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": Object {},
-            "relativeRoot": "",
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": Object {},
-            "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag foo",
+            "command": "npm publish packages/bar --tag foo",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag foo",
+            "command": "npm publish packages/foo --tag foo",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/foo",
           },
           Object {
             "messages": Array [
@@ -499,20 +478,18 @@ describe('release-it-yarn-workspaces', () => {
       expect(plugin.operations).toMatchInlineSnapshot(`
         Array [
           Object {
-            "command": "npm publish . --tag latest",
+            "command": "npm publish packages/bar --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag latest",
+            "command": "npm publish packages/foo --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/foo",
           },
           Object {
             "messages": Array [
@@ -543,29 +520,25 @@ describe('release-it-yarn-workspaces', () => {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": Object {},
-            "relativeRoot": "",
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": Object {},
-            "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag beta",
+            "command": "npm publish packages/bar --tag beta",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag beta",
+            "command": "npm publish packages/foo --tag beta",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/foo",
           },
           Object {
             "messages": Array [
@@ -607,37 +580,25 @@ describe('release-it-yarn-workspaces', () => {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": Object {},
-            "relativeRoot": "",
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": Object {},
-            "relativeRoot": "",
           },
           Object {
-            "command": "npm publish . --tag latest",
+            "command": "npm publish packages/bar --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/bar",
           },
           Object {
-            "command": "npm publish . --tag latest --otp 123456",
+            "command": "npm publish packages/foo --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
-            "relativeRoot": "packages/bar",
-          },
-          Object {
-            "command": "npm publish . --tag latest --otp 123456",
-            "operationType": "command",
-            "options": Object {
-              "write": false,
-            },
-            "relativeRoot": "packages/foo",
           },
           Object {
             "messages": Array [
