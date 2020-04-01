@@ -1,3 +1,15 @@
+## v1.2.0 (2020-04-01)
+
+#### :rocket: Enhancement
+* [#26](https://github.com/rwjblue/release-it-yarn-workspaces/pull/26) Allow bumping versions in additional manifest files. ([@rwjblue](https://github.com/rwjblue))
+
+#### :house: Internal
+* [#27](https://github.com/rwjblue/release-it-yarn-workspaces/pull/27) Avoid running CI for "pushes" on pull requests. ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v1.1.2 (2020-04-01)
 
 #### :bug: Bug Fix
