@@ -192,7 +192,7 @@ describe('release-it-yarn-workspaces', () => {
 
       await runTasks(plugin);
 
-      expect(plugin.commands).toMatchInlineSnapshot(`
+      expect(plugin.operations).toMatchInlineSnapshot(`
         Array [
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
@@ -222,33 +222,17 @@ describe('release-it-yarn-workspaces', () => {
             },
             "relativeRoot": "packages/foo",
           },
-        ]
-      `);
-
-      expect(plugin.logs).toMatchInlineSnapshot(`
-        Array [
-          Array [
-            "🔗 https://www.npmjs.com/package/bar",
-          ],
-          Array [
-            "🔗 https://www.npmjs.com/package/foo",
-          ],
-        ]
-      `);
-
-      expect(plugin.prompts).toMatchInlineSnapshot(`
-        Array [
           Object {
-            "choices": false,
-            "default": true,
-            "message": "Preparing to publish:
-            bar
-            foo
-          Publish to npm:",
-            "name": "publish",
-            "operationType": "prompt",
-            "transformer": false,
-            "type": "confirm",
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/bar",
+            ],
+            "operationType": "log",
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/foo",
+            ],
+            "operationType": "log",
           },
         ]
       `);
@@ -327,7 +311,7 @@ describe('release-it-yarn-workspaces', () => {
 
       await runTasks(plugin);
 
-      expect(plugin.commands).toMatchInlineSnapshot(`
+      expect(plugin.operations).toMatchInlineSnapshot(`
         Array [
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
@@ -365,31 +349,17 @@ describe('release-it-yarn-workspaces', () => {
             },
             "relativeRoot": "packages/@scope-name/foo",
           },
-        ]
-      `);
-
-      expect(plugin.prompts).toMatchInlineSnapshot(`
-        Array [
           Object {
-            "choices": false,
-            "default": true,
-            "message": "Preparing to publish:
-            @scope-name/bar
-            @scope-name/foo
-          Publish to npm:",
-            "name": "publish",
-            "operationType": "prompt",
-            "transformer": false,
-            "type": "confirm",
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/@scope-name/bar",
+            ],
+            "operationType": "log",
           },
           Object {
-            "choices": false,
-            "message": "Publishing @scope-name/bar failed because \`publishConfig.access\` is not set in its \`package.json\`.
-          Would you like to publish @scope-name/bar as a public package?",
-            "name": "publish-as-public",
-            "operationType": "prompt",
-            "transformer": false,
-            "type": "confirm",
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/@scope-name/foo",
+            ],
+            "operationType": "log",
           },
         ]
       `);
@@ -424,7 +394,7 @@ describe('release-it-yarn-workspaces', () => {
 
       await runTasks(plugin);
 
-      expect(plugin.commands).toMatchInlineSnapshot(`
+      expect(plugin.operations).toMatchInlineSnapshot(`
         Array [
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
@@ -454,33 +424,17 @@ describe('release-it-yarn-workspaces', () => {
             },
             "relativeRoot": "dist/packages/zorp",
           },
-        ]
-      `);
-
-      expect(plugin.logs).toMatchInlineSnapshot(`
-        Array [
-          Array [
-            "🔗 https://www.npmjs.com/package/qux",
-          ],
-          Array [
-            "🔗 https://www.npmjs.com/package/zorp",
-          ],
-        ]
-      `);
-
-      expect(plugin.prompts).toMatchInlineSnapshot(`
-        Array [
           Object {
-            "choices": false,
-            "default": true,
-            "message": "Preparing to publish:
-            qux
-            zorp
-          Publish to npm:",
-            "name": "publish",
-            "operationType": "prompt",
-            "transformer": false,
-            "type": "confirm",
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/qux",
+            ],
+            "operationType": "log",
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/zorp",
+            ],
+            "operationType": "log",
           },
         ]
       `);
@@ -491,7 +445,7 @@ describe('release-it-yarn-workspaces', () => {
 
       await runTasks(plugin);
 
-      expect(plugin.commands).toMatchInlineSnapshot(`
+      expect(plugin.operations).toMatchInlineSnapshot(`
         Array [
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
@@ -521,6 +475,18 @@ describe('release-it-yarn-workspaces', () => {
             },
             "relativeRoot": "packages/foo",
           },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/bar",
+            ],
+            "operationType": "log",
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/foo",
+            ],
+            "operationType": "log",
+          },
         ]
       `);
     });
@@ -530,7 +496,7 @@ describe('release-it-yarn-workspaces', () => {
 
       await runTasks(plugin);
 
-      expect(plugin.commands).toMatchInlineSnapshot(`
+      expect(plugin.operations).toMatchInlineSnapshot(`
         Array [
           Object {
             "command": "npm publish . --tag latest",
@@ -547,6 +513,18 @@ describe('release-it-yarn-workspaces', () => {
               "write": false,
             },
             "relativeRoot": "packages/foo",
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/bar",
+            ],
+            "operationType": "log",
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/foo",
+            ],
+            "operationType": "log",
           },
         ]
       `);
@@ -559,7 +537,7 @@ describe('release-it-yarn-workspaces', () => {
 
       await runTasks(plugin);
 
-      expect(plugin.commands).toMatchInlineSnapshot(`
+      expect(plugin.operations).toMatchInlineSnapshot(`
         Array [
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
@@ -588,6 +566,18 @@ describe('release-it-yarn-workspaces', () => {
               "write": false,
             },
             "relativeRoot": "packages/foo",
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/bar",
+            ],
+            "operationType": "log",
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/foo",
+            ],
+            "operationType": "log",
           },
         ]
       `);
@@ -611,7 +601,7 @@ describe('release-it-yarn-workspaces', () => {
 
       await runTasks(plugin);
 
-      expect(plugin.commands).toMatchInlineSnapshot(`
+      expect(plugin.operations).toMatchInlineSnapshot(`
         Array [
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
@@ -649,30 +639,17 @@ describe('release-it-yarn-workspaces', () => {
             },
             "relativeRoot": "packages/foo",
           },
-        ]
-      `);
-
-      expect(plugin.prompts).toMatchInlineSnapshot(`
-        Array [
           Object {
-            "choices": false,
-            "default": true,
-            "message": "Preparing to publish:
-            bar
-            foo
-          Publish to npm:",
-            "name": "publish",
-            "operationType": "prompt",
-            "transformer": false,
-            "type": "confirm",
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/bar",
+            ],
+            "operationType": "log",
           },
           Object {
-            "choices": false,
-            "message": "Please enter OTP for npm:",
-            "name": "otp",
-            "operationType": "prompt",
-            "transformer": false,
-            "type": "input",
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/foo",
+            ],
+            "operationType": "log",
           },
         ]
       `);
