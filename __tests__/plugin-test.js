@@ -282,6 +282,56 @@ describe('release-it-yarn-workspaces', () => {
       });
     });
 
+    it('allows specifying additional locations for updating dependencies / devDependencies of packages', async () => {
+      dir.write({
+        blueprints: {
+          zorp: {
+            files: {
+              'package.json': json({
+                name: 'whatever',
+
+                dependencies: {
+                  foo: '^1.0.0',
+                  bar: '^1.0.0',
+                },
+              }),
+            },
+          },
+          derp: {
+            files: {
+              'package.json': json({
+                name: 'whatever',
+
+                dependencies: {
+                  foo: '^1.0.0',
+                  bar: '^1.0.0',
+                },
+              }),
+            },
+          },
+        },
+      });
+
+      let plugin = buildPlugin({
+        additionalManifests: { dependencyUpdates: ['blueprints/*/files/package.json'] },
+      });
+
+      await runTasks(plugin);
+
+      ['derp', 'zorp'].forEach((name) => {
+        let pkg = JSON.parse(dir.readText(`blueprints/${name}/files/package.json`));
+
+        expect(pkg).toEqual({
+          name: 'whatever',
+
+          dependencies: {
+            foo: '^1.0.1',
+            bar: '^1.0.1',
+          },
+        });
+      });
+    });
+
     it('prompts to ask if the package should be public when private package publishing fails', async () => {
       setupProject(['packages/@scope-name/*']);
       setupWorkspace({ name: '@scope-name/bar' });

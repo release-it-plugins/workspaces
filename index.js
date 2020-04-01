@@ -182,6 +182,18 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
         pkgInfo.write();
       });
+
+      const additionalManifests = this.getAdditionalManifests();
+      additionalManifests.forEach(({ pkgInfo }) => {
+        let { pkg } = pkgInfo;
+
+        this._updateDependencies(pkg.dependencies, version);
+        this._updateDependencies(pkg.devDependencies, version);
+        this._updateDependencies(pkg.optionalDependencies, version);
+        this._updateDependencies(pkg.peerDependencies, version);
+
+        pkgInfo.write();
+      });
     };
 
     return this.spinner.show({ task, label: 'npm version' });
@@ -357,6 +369,38 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
         });
       }
     }
+  }
+
+  getAdditionalManifests() {
+    if (this._additionalManifests) {
+      return this._additionalManifests;
+    }
+
+    let root = this.getContext('root');
+    let additionalManifests = this.getContext('additionalManifests');
+
+    if (additionalManifests && additionalManifests.dependencyUpdates) {
+      let packageJSONFiles = walkSync('.', {
+        globs: additionalManifests.dependencyUpdates,
+      });
+
+      this._additionalManifests = packageJSONFiles.map((file) => {
+        let absolutePath = path.join(root, file);
+        let pkgInfo = new JSONFile(absolutePath);
+
+        let relativeRoot = path.dirname(file);
+
+        return {
+          root: path.join(root, relativeRoot),
+          relativeRoot,
+          pkgInfo,
+        };
+      });
+    } else {
+      this._additionalManifests = [];
+    }
+
+    return this._additionalManifests;
   }
 
   getWorkspaces() {

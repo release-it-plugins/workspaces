@@ -146,6 +146,29 @@ This value replaces the value from `package.json`, and given the above
 configuration `release-it-yarn-workspaces` would publish each package (that was
 not private) in `dist/packages` folder.
 
+### additionalManifests
+
+There are cases where you'd like to ensure files other than your workspace
+packages have their `dependencies` / `devDependencies` / `optionalDependencies`
+/ `peerDependencies` updated but not _also_ get a `version` bump. A great
+example is if you maintain a template `package.json` for consumers of your
+package(s). In that case, you would not want to bump its `version` property but
+you would want to ensure that any dependencies have been updated to match the
+newly published versions.
+
+```json
+{
+  "release-it": {
+    "plugins": {
+      "release-it-yarn-workspaces": {
+        "additionalManifests": {
+          "dependencyUpdates": ["blueprints/*/package.json"]
+      }
+    }
+  }
+}
+```
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE.md).
