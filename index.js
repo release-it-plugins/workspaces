@@ -298,9 +298,12 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     }
 
     try {
-      await this.exec(`npm publish . --tag ${tag}${accessArg}${otpArg}${dryRunArg}`, {
-        options,
-      });
+      await this.exec(
+        `npm publish ${workspaceInfo.relativeRoot} --tag ${tag}${accessArg}${otpArg}${dryRunArg}`,
+        {
+          options,
+        }
+      );
 
       workspaceInfo.isReleased = true;
     } catch (err) {
@@ -347,11 +350,8 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
           currentPackage: workspaceInfo,
         });
 
-        process.chdir(workspaceInfo.root);
         await action(workspaceInfo);
       } finally {
-        process.chdir(this.getContext('root'));
-
         this.setContext({
           currentPackage: null,
         });
