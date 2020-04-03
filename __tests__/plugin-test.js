@@ -282,6 +282,34 @@ describe('release-it-yarn-workspaces', () => {
       });
     });
 
+    it('allows specifying additional locations for updating package.json versions', async () => {
+      dir.write({
+        dist: {
+          packages: {
+            zorp: {
+              'package.json': json({
+                name: 'whatever',
+                version: '1.0.0',
+              }),
+            },
+          },
+        },
+      });
+
+      let plugin = buildPlugin({
+        additionalManifests: { versionUpdates: ['dist/packages/*/package.json'] },
+      });
+
+      await runTasks(plugin);
+
+      let pkg = JSON.parse(dir.readText(`dist/packages/zorp/package.json`));
+
+      expect(pkg).toEqual({
+        name: 'whatever',
+        version: '1.0.1',
+      });
+    });
+
     it('allows specifying additional locations for updating dependencies / devDependencies of packages', async () => {
       dir.write({
         blueprints: {

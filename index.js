@@ -57,6 +57,31 @@ function buildReplacementDepencencyVersion(existingVersion, newVersion) {
   return newVersion;
 }
 
+function findAdditionalManifests(root, manifestPaths) {
+  if (!Array.isArray(manifestPaths)) {
+    return null;
+  }
+
+  let packageJSONFiles = walkSync('.', {
+    globs: manifestPaths,
+  });
+
+  let manifests = packageJSONFiles.map((file) => {
+    let absolutePath = path.join(root, file);
+    let pkgInfo = new JSONFile(absolutePath);
+
+    let relativeRoot = path.dirname(file);
+
+    return {
+      root: path.join(root, relativeRoot),
+      relativeRoot,
+      pkgInfo,
+    };
+  });
+
+  return manifests;
+}
+
 class JSONFile {
   constructor(filename) {
     let contents = fs.readFileSync(filename, { encoding: 'utf8' });
@@ -165,35 +190,49 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
         return;
       }
 
-      workspaces.forEach(({ pkgInfo }) => {
+      const updateVersion = (pkgInfo) => {
         let { pkg } = pkgInfo;
         let originalVersion = pkg.version;
 
         if (originalVersion === version) {
-          this.log.warn(`Did not update version in package.json, etc. (already at ${version}).`);
+          this.log.warn(
+            `Did not update version in \`${pkgInfo.relativeRoot}/package.json\`, etc. (already at ${version}).`
+          );
         }
 
         pkg.version = version;
+      };
 
+      const updateDependencies = ({ pkg }) => {
         this._updateDependencies(pkg.dependencies, version);
         this._updateDependencies(pkg.devDependencies, version);
         this._updateDependencies(pkg.optionalDependencies, version);
         this._updateDependencies(pkg.peerDependencies, version);
+      };
+
+      workspaces.forEach(({ pkgInfo }) => {
+        updateVersion(pkgInfo);
+        updateDependencies(pkgInfo);
 
         pkgInfo.write();
       });
 
       const additionalManifests = this.getAdditionalManifests();
-      additionalManifests.forEach(({ pkgInfo }) => {
-        let { pkg } = pkgInfo;
+      if (additionalManifests.dependencyUpdates) {
+        additionalManifests.dependencyUpdates.forEach(({ pkgInfo }) => {
+          updateDependencies(pkgInfo);
 
-        this._updateDependencies(pkg.dependencies, version);
-        this._updateDependencies(pkg.devDependencies, version);
-        this._updateDependencies(pkg.optionalDependencies, version);
-        this._updateDependencies(pkg.peerDependencies, version);
+          pkgInfo.write();
+        });
+      }
 
-        pkgInfo.write();
-      });
+      if (additionalManifests.versionUpdates) {
+        additionalManifests.versionUpdates.forEach(({ pkgInfo }) => {
+          updateVersion(pkgInfo);
+
+          pkgInfo.write();
+        });
+      }
     };
 
     return this.spinner.show({ task, label: 'npm version' });
@@ -372,33 +411,21 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   }
 
   getAdditionalManifests() {
-    if (this._additionalManifests) {
-      return this._additionalManifests;
-    }
-
     let root = this.getContext('root');
-    let additionalManifests = this.getContext('additionalManifests');
+    let additionalManifestsConfig = this.getContext('additionalManifests');
+    let additionalManifests = {
+      dependencyUpdates: null,
+      versionUpdates: null,
+    };
 
-    if (additionalManifests && additionalManifests.dependencyUpdates) {
-      let packageJSONFiles = walkSync('.', {
-        globs: additionalManifests.dependencyUpdates,
-      });
+    if (additionalManifestsConfig) {
+      let { dependencyUpdates, versionUpdates } = additionalManifestsConfig;
 
-      this._additionalManifests = packageJSONFiles.map((file) => {
-        let absolutePath = path.join(root, file);
-        let pkgInfo = new JSONFile(absolutePath);
-
-        let relativeRoot = path.dirname(file);
-
-        return {
-          root: path.join(root, relativeRoot),
-          relativeRoot,
-          pkgInfo,
-        };
-      });
-    } else {
-      this._additionalManifests = [];
+      additionalManifests.versionUpdates = findAdditionalManifests(root, versionUpdates);
+      additionalManifests.dependencyUpdates = findAdditionalManifests(root, dependencyUpdates);
     }
+
+    this._additionalManifests = additionalManifests;
 
     return this._additionalManifests;
   }
