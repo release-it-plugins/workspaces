@@ -1,3 +1,13 @@
+## v1.3.0 (2020-04-03)
+
+#### :rocket: Enhancement
+* [#30](https://github.com/rwjblue/release-it-yarn-workspaces/pull/30) Add logging output (primarily for `--dry-run` / `--verbose`). ([@rwjblue](https://github.com/rwjblue))
+* [#29](https://github.com/rwjblue/release-it-yarn-workspaces/pull/29) Add additionalManifests.versionUpdates option. ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v1.2.0 (2020-04-01)
 
 #### :rocket: Enhancement
