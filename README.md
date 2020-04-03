@@ -148,6 +148,27 @@ not private) in `dist/packages` folder.
 
 ### additionalManifests
 
+#### versionUpdates
+
+There are cases where you'd like to ensure JSON files other than your workspace
+packages `package.json`s have their `version` property updated. For example,
+you may publish an alternate `docs.json` file in your published package.
+
+```json
+{
+  "release-it": {
+    "plugins": {
+      "release-it-yarn-workspaces": {
+        "additionalManifests": {
+          "dependencyUpdates": ["dist/docs.json"]
+      }
+    }
+  }
+}
+```
+
+#### dependencyUpdates
+
 There are cases where you'd like to ensure files other than your workspace
 packages have their `dependencies` / `devDependencies` / `optionalDependencies`
 / `peerDependencies` updated but not _also_ get a `version` bump. A great
