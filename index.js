@@ -46,17 +46,6 @@ function parseVersion(raw) {
   };
 }
 
-function buildReplacementDepencencyVersion(existingVersion, newVersion) {
-  let firstChar = existingVersion[0];
-
-  // preserve existing floating constraint
-  if (['^', '~'].includes(firstChar)) {
-    return `${firstChar}${newVersion}`;
-  }
-
-  return newVersion;
-}
-
 function findAdditionalManifests(root, manifestPaths) {
   if (!Array.isArray(manifestPaths)) {
     return null;
@@ -185,52 +174,59 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     });
 
     const task = async () => {
-      if (this.global.isDryRun) {
-        this.log.exec(`Bumping versions in ${workspaces.map((w) => w.name).join(', ')}`);
-        return;
-      }
+      const { isDryRun } = this.global;
 
       const updateVersion = (pkgInfo) => {
         let { pkg } = pkgInfo;
         let originalVersion = pkg.version;
 
         if (originalVersion === version) {
-          this.log.warn(
-            `Did not update version in \`${pkgInfo.relativeRoot}/package.json\`, etc. (already at ${version}).`
-          );
+          this.log.warn(`\tDid not update version (already at ${version}).`);
         }
 
-        pkg.version = version;
+        this.log.exec(`\tversion: -> ${version} (from ${originalVersion})`);
+
+        if (!isDryRun) {
+          pkg.version = version;
+        }
       };
 
-      const updateDependencies = ({ pkg }) => {
-        this._updateDependencies(pkg.dependencies, version);
-        this._updateDependencies(pkg.devDependencies, version);
-        this._updateDependencies(pkg.optionalDependencies, version);
-        this._updateDependencies(pkg.peerDependencies, version);
-      };
+      workspaces.forEach(({ relativeRoot, pkgInfo }) => {
+        this.log.exec(`Processing ${relativeRoot}/package.json:`);
 
-      workspaces.forEach(({ pkgInfo }) => {
         updateVersion(pkgInfo);
-        updateDependencies(pkgInfo);
+        this._updateDependencies(pkgInfo, version);
 
-        pkgInfo.write();
+        if (!isDryRun) {
+          pkgInfo.write();
+        }
       });
 
       const additionalManifests = this.getAdditionalManifests();
       if (additionalManifests.dependencyUpdates) {
-        additionalManifests.dependencyUpdates.forEach(({ pkgInfo }) => {
-          updateDependencies(pkgInfo);
+        additionalManifests.dependencyUpdates.forEach(({ relativeRoot, pkgInfo }) => {
+          this.log.exec(
+            `Processing additionManifest.dependencyUpdates for ${relativeRoot}/package.json:`
+          );
 
-          pkgInfo.write();
+          this._updateDependencies(pkgInfo, version);
+
+          if (!isDryRun) {
+            pkgInfo.write();
+          }
         });
       }
 
       if (additionalManifests.versionUpdates) {
-        additionalManifests.versionUpdates.forEach(({ pkgInfo }) => {
+        additionalManifests.versionUpdates.forEach(({ relativeRoot, pkgInfo }) => {
+          this.log.exec(
+            `Processing additionManifest.versionUpdates for ${relativeRoot}/package.json:`
+          );
           updateVersion(pkgInfo);
 
-          pkgInfo.write();
+          if (!isDryRun) {
+            pkgInfo.write();
+          }
         });
       }
     };
@@ -268,18 +264,50 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     });
   }
 
-  _updateDependencies(dependencies, newVersion) {
+  _buildReplacementDepencencyVersion(existingVersion, newVersion) {
+    let firstChar = existingVersion[0];
+
+    // preserve existing floating constraint
+    if (['^', '~'].includes(firstChar)) {
+      return `${firstChar}${newVersion}`;
+    }
+
+    return newVersion;
+  }
+
+  _updateDependencies(pkgInfo, newVersion) {
+    const { isDryRun } = this.global;
     const workspaces = this.getWorkspaces();
+    const { pkg } = pkgInfo;
 
-    if (dependencies) {
-      for (let dependency in dependencies) {
-        if (workspaces.find((w) => w.name === dependency)) {
-          const existingVersion = dependencies[dependency];
+    const updateDependencies = (dependencyType) => {
+      let dependencies = pkg[dependencyType];
 
-          dependencies[dependency] = buildReplacementDepencencyVersion(existingVersion, newVersion);
+      if (dependencies) {
+        for (let dependency in dependencies) {
+          if (workspaces.find((w) => w.name === dependency)) {
+            const existingVersion = dependencies[dependency];
+            const replacementVersion = this._buildReplacementDepencencyVersion(
+              existingVersion,
+              newVersion
+            );
+
+            this.log.exec(
+              `\t${dependencyType}: \`${dependency}\` -> ${replacementVersion} (from ${existingVersion})`
+            );
+
+            if (!isDryRun) {
+              dependencies[dependency] = replacementVersion;
+            }
+          }
         }
       }
-    }
+    };
+
+    updateDependencies('dependencies');
+    updateDependencies('devDependencies');
+    updateDependencies('optionalDependencies');
+    updateDependencies('peerDependencies');
   }
 
   _formatPublishMessage(distTag, packageNames) {

@@ -858,23 +858,14 @@ describe('release-it-yarn-workspaces', () => {
     });
   });
 
-  describe('_updateDependencies', () => {
+  describe('_buildReplacementDepencencyVersion', () => {
     function updatesTo({ existing, new: newVersion, expected }) {
       it(`updates ${existing} to ${newVersion}`, () => {
         setupProject(['packages/*']);
 
-        setupWorkspace({ name: 'foo' });
-        setupWorkspace({ name: 'bar' });
-
         let plugin = buildPlugin();
 
-        let dependencies = {
-          foo: existing,
-        };
-
-        plugin._updateDependencies(dependencies, newVersion);
-
-        expect(dependencies.foo).toEqual(expected);
+        expect(plugin._buildReplacementDepencencyVersion(existing, newVersion)).toEqual(expected);
       });
     }
 
