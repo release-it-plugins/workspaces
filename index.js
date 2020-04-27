@@ -57,7 +57,7 @@ function findAdditionalManifests(root, manifestPaths) {
 
   let manifests = packageJSONFiles.map((file) => {
     let absolutePath = path.join(root, file);
-    let pkgInfo = new JSONFile(absolutePath);
+    let pkgInfo = JSONFile.for(absolutePath);
 
     let relativeRoot = path.dirname(file);
 
@@ -71,7 +71,20 @@ function findAdditionalManifests(root, manifestPaths) {
   return manifests;
 }
 
+const jsonFiles = new Map();
+
 class JSONFile {
+  static for(path) {
+    if (jsonFiles.has(path)) {
+      return jsonFiles.get(path);
+    }
+
+    let jsonFile = new this(path);
+    jsonFiles.set(path, jsonFile);
+
+    return jsonFile;
+  }
+
   constructor(filename) {
     let contents = fs.readFileSync(filename, { encoding: 'utf8' });
 
@@ -472,7 +485,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
     this._workspaces = packageJSONFiles.map((file) => {
       let absolutePath = path.join(root, file);
-      let pkgInfo = new JSONFile(absolutePath);
+      let pkgInfo = JSONFile.for(absolutePath);
 
       let relativeRoot = path.dirname(file);
 

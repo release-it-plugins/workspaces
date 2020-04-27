@@ -695,6 +695,113 @@ describe('release-it-yarn-workspaces', () => {
     });
   });
 
+  describe('acceptance', () => {
+    it('@glimmerjs/glimmer-vm style setup', async () => {
+      setupProject(['packages/@glimmer/*']);
+      setupWorkspace({ name: '@glimmer/interfaces', version: '1.0.0' });
+      setupWorkspace({
+        name: '@glimmer/runtime',
+        version: '1.0.0',
+        dependencies: { '@glimmer/interfaces': '1.0.0' },
+      });
+
+      dir.write({
+        dist: {
+          '@glimmer': {
+            interfaces: {
+              'package.json': json({
+                name: '@glimmer/interfaces',
+                version: '1.0.0',
+              }),
+            },
+            runtime: {
+              'package.json': json({
+                name: '@glimmer/runtime',
+                version: '1.0.0',
+                dependencies: { '@glimmer/interfaces': '1.0.0' },
+              }),
+            },
+          },
+        },
+      });
+
+      let plugin = buildPlugin({
+        workspaces: ['dist/@glimmer/*'],
+        additionalManifests: {
+          dependencyUpdates: ['packages/*/*/package.json'],
+          versionUpdates: ['packages/*/*/package.json'],
+        },
+      });
+
+      await runTasks(plugin);
+
+      // dist was updated
+      expect(JSON.parse(dir.readText('dist/@glimmer/interfaces/package.json'))).toEqual({
+        name: '@glimmer/interfaces',
+        version: '1.0.1',
+      });
+      expect(JSON.parse(dir.readText('dist/@glimmer/runtime/package.json'))).toEqual({
+        name: '@glimmer/runtime',
+        version: '1.0.1',
+        dependencies: { '@glimmer/interfaces': '1.0.1' },
+      });
+
+      // packages/@glimmer/* was updated
+      expect(JSON.parse(dir.readText('packages/@glimmer/interfaces/package.json'))).toEqual({
+        license: 'MIT',
+        name: '@glimmer/interfaces',
+        version: '1.0.1',
+      });
+      expect(JSON.parse(dir.readText('packages/@glimmer/runtime/package.json'))).toEqual({
+        license: 'MIT',
+        name: '@glimmer/runtime',
+        version: '1.0.1',
+        dependencies: { '@glimmer/interfaces': '1.0.1' },
+      });
+
+      expect(plugin.operations).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "operationType": "command",
+            "options": Object {},
+          },
+          Object {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "operationType": "command",
+            "options": Object {},
+          },
+          Object {
+            "command": "npm publish dist/@glimmer/interfaces --tag latest",
+            "operationType": "command",
+            "options": Object {
+              "write": false,
+            },
+          },
+          Object {
+            "command": "npm publish dist/@glimmer/runtime --tag latest",
+            "operationType": "command",
+            "options": Object {
+              "write": false,
+            },
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/@glimmer/interfaces",
+            ],
+            "operationType": "log",
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/@glimmer/runtime",
+            ],
+            "operationType": "log",
+          },
+        ]
+      `);
+    });
+  });
+
   describe('format publish output', () => {
     it('correctly formats publish message for all packages', () => {
       setupProject(['packages/*']);
