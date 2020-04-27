@@ -1,3 +1,15 @@
+## v1.3.1 (2020-04-27)
+
+#### :bug: Bug Fix
+* [#32](https://github.com/rwjblue/release-it-yarn-workspaces/pull/32) Ensure dependencyUpdates and versionUpdates can reference the same file. ([@rwjblue](https://github.com/rwjblue))
+
+#### :house: Internal
+* [#33](https://github.com/rwjblue/release-it-yarn-workspaces/pull/33) Add Node 14 CI run. ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v1.3.0 (2020-04-03)
 
 #### :rocket: Enhancement
