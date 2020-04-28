@@ -1,3 +1,15 @@
+## v1.4.0 (2020-04-28)
+
+#### :rocket: Enhancement
+* [#35](https://github.com/rwjblue/release-it-yarn-workspaces/pull/35) Update the top level `package.json` version by default. ([@rwjblue](https://github.com/rwjblue))
+
+#### :memo: Documentation
+* [#34](https://github.com/rwjblue/release-it-yarn-workspaces/pull/34) Add configuration summary to README.md. ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v1.3.1 (2020-04-27)
 
 #### :bug: Bug Fix
