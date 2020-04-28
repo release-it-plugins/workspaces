@@ -459,12 +459,20 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       versionUpdates: null,
     };
 
-    if (additionalManifestsConfig) {
-      let { dependencyUpdates, versionUpdates } = additionalManifestsConfig;
+    let versionUpdates = ['package.json'];
 
-      additionalManifests.versionUpdates = findAdditionalManifests(root, versionUpdates);
-      additionalManifests.dependencyUpdates = findAdditionalManifests(root, dependencyUpdates);
+    if (additionalManifestsConfig) {
+      additionalManifests.dependencyUpdates = findAdditionalManifests(
+        root,
+        additionalManifestsConfig.dependencyUpdates
+      );
+
+      if (additionalManifestsConfig.versionUpdates) {
+        versionUpdates = additionalManifestsConfig.versionUpdates;
+      }
     }
+
+    additionalManifests.versionUpdates = findAdditionalManifests(root, versionUpdates);
 
     this._additionalManifests = additionalManifests;
 

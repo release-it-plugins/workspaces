@@ -98,6 +98,8 @@ interface ReleaseItYarnWorkSpacesConfiguration {
     /**
       An array of `package.json` files that should have their `version`
       property updated to the newly released version.
+
+      Defaults to `['package.json']`.
     */
     versionUpdates?: string[];
 
@@ -213,12 +215,15 @@ you may publish an alternate `docs.json` file in your published package.
     "plugins": {
       "release-it-yarn-workspaces": {
         "additionalManifests": {
-          "dependencyUpdates": ["dist/docs.json"]
+          "versionUpdates": ["dist/docs.json"]
       }
     }
   }
 }
 ```
+
+The default configuration is `['package.json']` to ensure that the top level
+`package.json`s version is updated upon release.
 
 #### dependencyUpdates
 

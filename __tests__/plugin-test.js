@@ -231,6 +231,7 @@ describe('release-it-yarn-workspaces', () => {
         ]
       `);
 
+      expect(JSON.parse(dir.readText('package.json')).version).toEqual('1.0.1');
       expect(readWorkspacePackage('bar').version).toEqual('1.0.1');
       expect(readWorkspacePackage('foo').version).toEqual('1.0.1');
     });
