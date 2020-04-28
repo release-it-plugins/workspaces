@@ -58,6 +58,59 @@ would add the following to your `release-it` config (again showing
 For the most part `release-it-yarn-workspaces` "does the right thing", but
 there are a few things that are configurable.
 
+A quick summary (in TypeScript syntax) of the supported options (more details
+on each just below):
+
+```ts
+interface ReleaseItYarnWorkSpacesConfiguration {
+  /**
+    Disables checks for `npm` registry and login info.
+
+    Defaults to `false`.
+  */
+  skipChecks?: boolean;
+
+  /**
+    Should the packges be published (`npm publish`)?
+
+    Defaults to `true`.
+  */
+  publish?: boolean;
+
+  /**
+    Specifies which `dist-tag` to use when publishing.
+
+    Defaults to `latest` for non-prerelease and the prelease type for
+    prereleases (e.g. `1.0.0-beta.1` would be `beta`, and `1.0.0-alpha.1` would
+    be alpha).
+  */
+  distTag?: string;
+
+  /**
+    The array of workspaces in the project.
+
+    Defaults to the `package.json`'s `workspaces` value.
+  */
+  workspaces?: string[];
+
+  additionalManifests?: {
+
+    /**
+      An array of `package.json` files that should have their `version`
+      property updated to the newly released version.
+    */
+    versionUpdates?: string[];
+
+    /**
+      An array of `package.json` files that should have their `dependencies`,
+      `devDependencies`, `optionalDependencies`, and `peerDependencies` values
+      updated to the newly published version.
+    */
+    dependencyUpdates?: string[];
+  }
+}
+```
+
 ### skipChecks
 
 By default, `release-it-yarn-workspaces` confirms that the `npm` registry is up
