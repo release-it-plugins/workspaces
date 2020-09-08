@@ -1,3 +1,12 @@
+## v1.5.0 (2020-09-08)
+
+#### :rocket: Enhancement
+* [#38](https://github.com/rwjblue/release-it-yarn-workspaces/pull/38) Make compatible with release-it@14 ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v1.4.0 (2020-04-28)
 
 #### :rocket: Enhancement
