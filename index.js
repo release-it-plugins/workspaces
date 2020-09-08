@@ -5,8 +5,6 @@ const urlJoin = require('url-join');
 const walkSync = require('walk-sync');
 const detectNewline = require('detect-newline');
 const detectIndent = require('detect-indent');
-const { rejectAfter } = require('release-it/lib/util');
-const { npmTimeoutError, npmAuthError } = require('release-it/lib/errors');
 const { Plugin } = require('release-it');
 
 const options = { write: false };
@@ -17,6 +15,16 @@ const DEFAULT_TAG = 'latest';
 const NPM_BASE_URL = 'https://www.npmjs.com';
 const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org';
 const DETECT_TRAILING_WHITESPACE = /\s+$/;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function rejectAfter(ms, error) {
+  await sleep(ms);
+
+  throw error;
+}
 
 function resolveWorkspaces(workspaces) {
   if (Array.isArray(workspaces)) {
@@ -150,16 +158,19 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
     const validations = Promise.all([this.isRegistryUp(), this.isAuthenticated()]);
 
-    await Promise.race([validations, rejectAfter(REGISTRY_TIMEOUT)]);
+    await Promise.race([
+      validations,
+      rejectAfter(REGISTRY_TIMEOUT, new Error(`Timed out after ${REGISTRY_TIMEOUT}ms.`)),
+    ]);
 
     const [isRegistryUp, isAuthenticated] = await validations;
 
     if (!isRegistryUp) {
-      throw new npmTimeoutError(REGISTRY_TIMEOUT);
+      throw new Error(`Unable to reach npm registry (timed out after ${REGISTRY_TIMEOUT}ms).`);
     }
 
     if (!isAuthenticated) {
-      throw new npmAuthError();
+      throw new Error('Not authenticated with npm. Please `npm login` and try again.');
     }
   }
 
