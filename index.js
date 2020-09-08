@@ -187,7 +187,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     });
 
     const task = async () => {
-      const { isDryRun } = this.global;
+      const { isDryRun } = this.config;
 
       const updateVersion = (pkgInfo) => {
         let { pkg } = pkgInfo;
@@ -289,7 +289,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
   }
 
   _updateDependencies(pkgInfo, newVersion) {
-    const { isDryRun } = this.global;
+    const { isDryRun } = this.config;
     const workspaces = this.getWorkspaces();
     const { pkg } = pkgInfo;
 
@@ -382,7 +382,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     const isScoped = workspaceInfo.name.startsWith('@');
     const otpArg = otp.value ? ` --otp ${otp.value}` : '';
     const accessArg = access ? ` --access ${access}` : '';
-    const dryRunArg = this.global.isDryRun ? ' --dry-run' : '';
+    const dryRunArg = this.config.isDryRun ? ' --dry-run' : '';
 
     if (workspaceInfo.isPrivate) {
       this.log.warn(`${workspaceInfo.name}: Skip publish (package is private)`);
