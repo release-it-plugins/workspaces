@@ -1,3 +1,19 @@
+## v2.0.0 (2020-10-20)
+
+#### :boom: Breaking Change
+* [#45](https://github.com/rwjblue/release-it-yarn-workspaces/pull/45) Drop Node 11 and 13 support. ([@rwjblue](https://github.com/rwjblue))
+* [#44](https://github.com/rwjblue/release-it-yarn-workspaces/pull/44) Make `release-it` a peer dependency (require host project to provide). ([@rwjblue](https://github.com/rwjblue))
+* [#43](https://github.com/rwjblue/release-it-yarn-workspaces/pull/43) Drop `release-it@13` support. ([@rwjblue](https://github.com/rwjblue))
+
+#### :house: Internal
+* [#46](https://github.com/rwjblue/release-it-yarn-workspaces/pull/46) Re-roll `yarn.lock` ([@rwjblue](https://github.com/rwjblue))
+* [#42](https://github.com/rwjblue/release-it-yarn-workspaces/pull/42) Bump release-it to ^14.0.0 ([@hjdivad](https://github.com/hjdivad))
+
+#### Committers: 2
+- David J. Hamilton ([@hjdivad](https://github.com/hjdivad))
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v1.5.0 (2020-09-08)
 
 #### :rocket: Enhancement
