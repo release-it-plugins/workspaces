@@ -7,6 +7,8 @@ const detectNewline = require('detect-newline');
 const detectIndent = require('detect-indent');
 const { Plugin } = require('release-it');
 
+require('validate-peer-dependencies')(__dirname);
+
 const options = { write: false };
 
 const ROOT_MANIFEST_PATH = './package.json';
