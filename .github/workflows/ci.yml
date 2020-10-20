@@ -34,7 +34,7 @@ jobs:
 
     strategy:
       matrix:
-        release-it-version: [13, 14]
+        release-it-version: ["14.0.0", "14.1.0", "14.2.0"]
 
     steps:
     - uses: actions/checkout@v1
@@ -43,5 +43,5 @@ jobs:
         node-version: 14
     - name: install dependencies
       run: yarn install --non-interactive --frozen-lockfile
-    - run: yarn add --dev release-it@^${{ matrix.release-it-version }}
+    - run: yarn add --dev release-it@${{ matrix.release-it-version }}
     - run: yarn test
