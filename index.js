@@ -277,7 +277,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       });
     };
 
-    await this.step({ task, label: 'npm publish', prompt: 'publish' });
+    await this.step({ task, label: 'yarn publish', prompt: 'publish' });
   }
 
   async afterRelease() {
@@ -404,7 +404,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
     try {
       await this.exec(
-        `npm publish ${workspaceInfo.relativeRoot} --tag ${tag}${accessArg}${otpArg}${dryRunArg}`,
+        `yarn publish ${workspaceInfo.relativeRoot} --tag ${tag}${accessArg}${otpArg}${dryRunArg}`,
         {
           options,
         }
