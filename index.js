@@ -404,7 +404,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
     try {
       await this.exec(
-        `npm publish ${workspaceInfo.relativeRoot} --tag ${tag}${accessArg}${otpArg}${dryRunArg}`,
+        `npm publish ./${workspaceInfo.relativeRoot} --tag ${tag}${accessArg}${otpArg}${dryRunArg}`,
         {
           options,
         }

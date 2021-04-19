@@ -203,14 +203,14 @@ describe('release-it-yarn-workspaces', () => {
             "options": Object {},
           },
           Object {
-            "command": "npm publish packages/bar --tag latest",
+            "command": "npm publish ./packages/bar --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
           },
           Object {
-            "command": "npm publish packages/foo --tag latest",
+            "command": "npm publish ./packages/foo --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
@@ -368,7 +368,7 @@ describe('release-it-yarn-workspaces', () => {
 
       let plugin = buildPlugin();
 
-      plugin.commandResponses['npm publish packages/@scope-name/bar --tag latest'] = [
+      plugin.commandResponses['npm publish ./packages/@scope-name/bar --tag latest'] = [
         {
           reject: true,
           value:
@@ -395,21 +395,21 @@ describe('release-it-yarn-workspaces', () => {
             "options": Object {},
           },
           Object {
-            "command": "npm publish packages/@scope-name/bar --tag latest",
+            "command": "npm publish ./packages/@scope-name/bar --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
           },
           Object {
-            "command": "npm publish packages/@scope-name/bar --tag latest --access public",
+            "command": "npm publish ./packages/@scope-name/bar --tag latest --access public",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
           },
           Object {
-            "command": "npm publish packages/@scope-name/foo --tag latest",
+            "command": "npm publish ./packages/@scope-name/foo --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
@@ -473,14 +473,14 @@ describe('release-it-yarn-workspaces', () => {
             "options": Object {},
           },
           Object {
-            "command": "npm publish dist/packages/qux --tag latest",
+            "command": "npm publish ./dist/packages/qux --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
           },
           Object {
-            "command": "npm publish dist/packages/zorp --tag latest",
+            "command": "npm publish ./dist/packages/zorp --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
@@ -520,14 +520,14 @@ describe('release-it-yarn-workspaces', () => {
             "options": Object {},
           },
           Object {
-            "command": "npm publish packages/bar --tag foo",
+            "command": "npm publish ./packages/bar --tag foo",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
           },
           Object {
-            "command": "npm publish packages/foo --tag foo",
+            "command": "npm publish ./packages/foo --tag foo",
             "operationType": "command",
             "options": Object {
               "write": false,
@@ -557,14 +557,14 @@ describe('release-it-yarn-workspaces', () => {
       expect(plugin.operations).toMatchInlineSnapshot(`
         Array [
           Object {
-            "command": "npm publish packages/bar --tag latest",
+            "command": "npm publish ./packages/bar --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
           },
           Object {
-            "command": "npm publish packages/foo --tag latest",
+            "command": "npm publish ./packages/foo --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
@@ -606,14 +606,14 @@ describe('release-it-yarn-workspaces', () => {
             "options": Object {},
           },
           Object {
-            "command": "npm publish packages/bar --tag beta",
+            "command": "npm publish ./packages/bar --tag beta",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
           },
           Object {
-            "command": "npm publish packages/foo --tag beta",
+            "command": "npm publish ./packages/foo --tag beta",
             "operationType": "command",
             "options": Object {
               "write": false,
@@ -666,14 +666,14 @@ describe('release-it-yarn-workspaces', () => {
             "options": Object {},
           },
           Object {
-            "command": "npm publish packages/bar --tag latest",
+            "command": "npm publish ./packages/bar --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
           },
           Object {
-            "command": "npm publish packages/foo --tag latest",
+            "command": "npm publish ./packages/foo --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
@@ -773,14 +773,14 @@ describe('release-it-yarn-workspaces', () => {
             "options": Object {},
           },
           Object {
-            "command": "npm publish dist/@glimmer/interfaces --tag latest",
+            "command": "npm publish ./dist/@glimmer/interfaces --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
             },
           },
           Object {
-            "command": "npm publish dist/@glimmer/runtime --tag latest",
+            "command": "npm publish ./dist/@glimmer/runtime --tag latest",
             "operationType": "command",
             "options": Object {
               "write": false,
