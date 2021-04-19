@@ -1,3 +1,12 @@
+## v2.0.1 (2021-04-19)
+
+#### :bug: Bug Fix
+* [#53](https://github.com/rwjblue/release-it-yarn-workspaces/pull/53) Use the full relative path when `npm publish`ing (fixes an issue with npm@7 publishing) ([@nilzona](https://github.com/nilzona))
+
+#### Committers: 1
+- Anders Nilsson ([@nilzona](https://github.com/nilzona))
+
+
 ## v2.0.0 (2020-10-20)
 
 #### :boom: Breaking Change
