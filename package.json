@@ -18,7 +18,8 @@
   "scripts": {
     "lint:js": "eslint .",
     "test": "npm-run-all lint:js test:jest",
-    "test:jest": "jest"
+    "test:jest": "jest",
+    "debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand"
   },
   "husky": {
     "hooks": {
@@ -29,6 +30,7 @@
     "*.js": "eslint"
   },
   "dependencies": {
+    "chalk": "^4.1.2",
     "detect-indent": "^6.0.0",
     "detect-newline": "^3.1.0",
     "semver": "^7.1.3",

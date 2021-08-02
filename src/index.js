@@ -1,11 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const semver = require('semver');
+const chalk = require('chalk');
 const urlJoin = require('url-join');
 const walkSync = require('walk-sync');
 const { Plugin } = require('release-it');
 const JSONFile = require('./json-file');
 const { rejectAfter } = require('./utils');
+
+const { green, red, redBright } = chalk;
 
 require('validate-peer-dependencies')(__dirname);
 
@@ -70,6 +73,13 @@ function findAdditionalManifests(root, manifestPaths) {
   return manifests;
 }
 
+const versionTransformer = (context) => (input) =>
+  semver.valid(input)
+    ? semver.gt(input, context.latestVersion)
+      ? green(input)
+      : red(input)
+    : redBright(input);
+
 module.exports = class YarnWorkspacesPlugin extends Plugin {
   static isEnabled(options) {
     return fs.existsSync(ROOT_MANIFEST_PATH) && options !== false;
@@ -99,6 +109,16 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
           return `Publishing ${currentPackage.name} failed because \`publishConfig.access\` is not set in its \`package.json\`.\n  Would you like to publish ${currentPackage.name} as a public package?`;
         },
+      },
+      independentVersion: {
+        type: 'input',
+        message(context) {
+          const { currentPackage } = context['release-it-yarn-workspaces'];
+          return `Please enter a valid version for the independent ${currentPackage.name}, from ${currentPackage.pkgInfo.pkg.version}:`;
+        },
+        transformer: (context) => versionTransformer(context),
+        validate: (input) =>
+          !!semver.valid(input) || 'The version must follow the semver standard.',
       },
     });
 
@@ -144,6 +164,20 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       distTag = this.options.distTag || isPreRelease ? preReleaseId : DEFAULT_TAG;
     }
     const workspaces = this.getWorkspaces();
+    const independentWorkspaceWithVersions = [];
+    await this.eachWorkspace(async (workspaceInfo) => {
+      const versionOfIndependentWorkspace = await this.promptIncrementVersion();
+      independentWorkspaceWithVersions.push([
+        workspaceInfo.name,
+        { workspace: workspaceInfo, version: versionOfIndependentWorkspace },
+      ]);
+    }, this.getIndependentWorkspaces());
+
+    const workspaceWithNewVersionsMap = new Map(
+      workspaces
+        .map((workspace) => [workspace.name, { workspace, version }])
+        .concat(independentWorkspaceWithVersions)
+    );
 
     const packagesToPublish = workspaces
       .filter((w) => !w.isPrivate)
@@ -152,37 +186,39 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     this.setContext({
       distTag,
       packagesToPublish,
-      version,
     });
 
     const task = async () => {
       const { isDryRun } = this.config;
 
-      const updateVersion = (pkgInfo) => {
+      const updateVersion = (pkgInfo, newVersion) => {
         let { pkg } = pkgInfo;
         let originalVersion = pkg.version;
 
-        if (originalVersion === version) {
-          this.log.warn(`\tDid not update version (already at ${version}).`);
+        if (originalVersion === newVersion) {
+          this.log.warn(`\tDid not update version (already at ${newVersion}).`);
         }
 
-        this.log.exec(`\tversion: -> ${version} (from ${originalVersion})`);
+        this.log.exec(`\tversion: -> ${newVersion} (from ${originalVersion})`);
 
         if (!isDryRun) {
-          pkg.version = version;
+          pkg.version = newVersion;
         }
       };
 
-      workspaces.forEach(({ relativeRoot, pkgInfo }) => {
+      for (let {
+        workspace: { relativeRoot, pkgInfo },
+        version: newVersion,
+      } of workspaceWithNewVersionsMap.values()) {
         this.log.exec(`Processing ${relativeRoot}/package.json:`);
 
-        updateVersion(pkgInfo);
-        this._updateDependencies(pkgInfo, version);
+        updateVersion(pkgInfo, newVersion);
+        this._updateDependencies(pkgInfo, workspaceWithNewVersionsMap);
 
         if (!isDryRun) {
           pkgInfo.write();
         }
-      });
+      }
 
       const additionalManifests = this.getAdditionalManifests();
       if (additionalManifests.dependencyUpdates) {
@@ -191,7 +227,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
             `Processing additionManifest.dependencyUpdates for ${relativeRoot}/package.json:`
           );
 
-          this._updateDependencies(pkgInfo, version);
+          this._updateDependencies(pkgInfo, workspaceWithNewVersionsMap);
 
           if (!isDryRun) {
             pkgInfo.write();
@@ -204,7 +240,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
           this.log.exec(
             `Processing additionManifest.versionUpdates for ${relativeRoot}/package.json:`
           );
-          updateVersion(pkgInfo);
+          updateVersion(pkgInfo, version);
 
           if (!isDryRun) {
             pkgInfo.write();
@@ -257,9 +293,8 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     return newVersion;
   }
 
-  _updateDependencies(pkgInfo, newVersion) {
+  _updateDependencies(pkgInfo, workspaceWithNewVersionsMap) {
     const { isDryRun } = this.config;
-    const workspaces = this.getWorkspaces();
     const { pkg } = pkgInfo;
 
     const updateDependencies = (dependencyType) => {
@@ -267,11 +302,11 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
       if (dependencies) {
         for (let dependency in dependencies) {
-          if (workspaces.find((w) => w.name === dependency)) {
+          if (workspaceWithNewVersionsMap.has(dependency)) {
             const existingVersion = dependencies[dependency];
             const replacementVersion = this._buildReplacementDepencencyVersion(
               existingVersion,
-              newVersion
+              workspaceWithNewVersionsMap.get(dependency).version
             );
 
             this.log.exec(
@@ -402,9 +437,7 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     }
   }
 
-  async eachWorkspace(action) {
-    let workspaces = this.getWorkspaces();
-
+  async eachWorkspace(action, workspaces = this.getWorkspaces()) {
     for (let workspaceInfo of workspaces) {
       try {
         this.setContext({
@@ -477,5 +510,43 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
     });
 
     return this._workspaces;
+  }
+
+  getIndependentWorkspaces() {
+    if (this._independentWorkspaces) {
+      return this._independentWorkspaces;
+    }
+
+    let root = this.getContext('root');
+    let { independentWorkspaces } = this.options;
+    if (!independentWorkspaces) return [];
+    let packageJSONFiles = walkSync('.', {
+      globs: independentWorkspaces.map((glob) => `${glob}/package.json`),
+    });
+
+    return (this._independentWorkspaces = packageJSONFiles.map((file) => {
+      let absolutePath = path.join(root, file);
+      let pkgInfo = JSONFile.for(absolutePath);
+
+      let relativeRoot = path.dirname(file);
+
+      return {
+        root: path.join(root, relativeRoot),
+        relativeRoot,
+        name: pkgInfo.pkg.name,
+        isPrivate: !!pkgInfo.pkg.private,
+        isReleased: false,
+        pkgInfo,
+      };
+    }));
+  }
+
+  promptIncrementVersion() {
+    return new Promise((resolve) => {
+      this.step({
+        prompt: 'independentVersion',
+        task: resolve,
+      });
+    });
   }
 };

@@ -801,6 +801,106 @@ describe('release-it-yarn-workspaces', () => {
         ]
       `);
     });
+
+    it('independent style setup', async () => {
+      setupProject(['packages/*']);
+      setupWorkspace({ name: 'foo', version: '1.0.0' });
+      setupWorkspace({ name: 'independent-bar', version: '2.0.0', dependencies: { foo: '1.0.0' } });
+
+      dir.write({
+        'test-packages': {
+          zoo: {
+            'package.json': json({
+              name: 'zoo',
+              version: '1.0.0',
+              dependencies: { foo: '1.0.0', 'independent-bar': '2.0.0' },
+            }),
+          },
+        },
+      });
+
+      let plugin = buildPlugin({
+        workspaces: ['packages/*'],
+        independentWorkspaces: ['packages/independent-bar'],
+        additionalManifests: {
+          dependencyUpdates: ['packages/*/package.json', 'test-packages/*/package.json'],
+          versionUpdates: ['test-packages/*/package.json'],
+        },
+      });
+
+      plugin.promptResponses['packages/independent-bar'] = {
+        independentVersion: '2.0.1',
+      };
+
+      await runTasks(plugin);
+
+      expect(JSON.parse(dir.readText('packages/foo/package.json'))).toEqual(
+        {
+          license: 'MIT',
+          name: 'foo',
+          version: '1.0.1',
+        },
+        'locked package was updated'
+      );
+      expect(JSON.parse(dir.readText('packages/independent-bar/package.json'))).toEqual(
+        {
+          license: 'MIT',
+          name: 'independent-bar',
+          version: '2.0.1',
+          dependencies: { foo: '1.0.1' },
+        },
+        'independent package was updated'
+      );
+      expect(JSON.parse(dir.readText('test-packages/zoo/package.json'))).toEqual(
+        {
+          name: 'zoo',
+          version: '1.0.1',
+          dependencies: { foo: '1.0.1', 'independent-bar': '2.0.1' },
+        },
+        'independent package was updated in additionalManifests dependencyUpdates'
+      );
+
+      expect(plugin.operations).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "operationType": "command",
+            "options": Object {},
+          },
+          Object {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "operationType": "command",
+            "options": Object {},
+          },
+          Object {
+            "command": "npm publish ./packages/foo --tag latest",
+            "operationType": "command",
+            "options": Object {
+              "write": false,
+            },
+          },
+          Object {
+            "command": "npm publish ./packages/independent-bar --tag latest",
+            "operationType": "command",
+            "options": Object {
+              "write": false,
+            },
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/foo",
+            ],
+            "operationType": "log",
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/independent-bar",
+            ],
+            "operationType": "log",
+          },
+        ]
+      `);
+    });
   });
 
   describe('format publish output', () => {
