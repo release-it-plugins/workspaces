@@ -3,9 +3,9 @@ const path = require('path');
 const semver = require('semver');
 const urlJoin = require('url-join');
 const walkSync = require('walk-sync');
-const detectNewline = require('detect-newline');
-const detectIndent = require('detect-indent');
 const { Plugin } = require('release-it');
+const JSONFile = require('./json-file');
+const { rejectAfter } = require('./utils');
 
 require('validate-peer-dependencies')(__dirname);
 
@@ -16,17 +16,6 @@ const REGISTRY_TIMEOUT = 10000;
 const DEFAULT_TAG = 'latest';
 const NPM_BASE_URL = 'https://www.npmjs.com';
 const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org';
-const DETECT_TRAILING_WHITESPACE = /\s+$/;
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function rejectAfter(ms, error) {
-  await sleep(ms);
-
-  throw error;
-}
 
 function resolveWorkspaces(workspaces) {
   if (Array.isArray(workspaces)) {
@@ -79,39 +68,6 @@ function findAdditionalManifests(root, manifestPaths) {
   });
 
   return manifests;
-}
-
-const jsonFiles = new Map();
-
-class JSONFile {
-  static for(path) {
-    if (jsonFiles.has(path)) {
-      return jsonFiles.get(path);
-    }
-
-    let jsonFile = new this(path);
-    jsonFiles.set(path, jsonFile);
-
-    return jsonFile;
-  }
-
-  constructor(filename) {
-    let contents = fs.readFileSync(filename, { encoding: 'utf8' });
-
-    this.filename = filename;
-    this.pkg = JSON.parse(contents);
-    this.lineEndings = detectNewline(contents);
-    this.indent = detectIndent(contents).amount;
-
-    let trailingWhitespace = DETECT_TRAILING_WHITESPACE.exec(contents);
-    this.trailingWhitespace = trailingWhitespace ? trailingWhitespace : '';
-  }
-
-  write() {
-    let contents = JSON.stringify(this.pkg, null, this.indent).replace(/\n/g, this.lineEndings);
-
-    fs.writeFileSync(this.filename, contents + this.trailingWhitespace, { encoding: 'utf8' });
-  }
 }
 
 module.exports = class YarnWorkspacesPlugin extends Plugin {

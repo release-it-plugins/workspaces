@@ -2,7 +2,7 @@ const fs = require('fs');
 const { createTempDir } = require('broccoli-test-helper');
 const { factory, runTasks } = require('release-it/test/util');
 const Shell = require('release-it/lib/shell');
-const Plugin = require('../index');
+const Plugin = require('../src/index');
 
 const namespace = 'release-it-yarn-workspaces';
 

@@ -11,9 +11,9 @@
   "repository": "https://github.com/rwjblue/release-it-yarn-workspaces",
   "license": "MIT",
   "author": "Robert Jackson <me@rwjblue.com>",
-  "main": "index.js",
+  "main": "src/index.js",
   "files": [
-    "index.js"
+    "src/*.js"
   ],
   "scripts": {
     "lint:js": "eslint .",
