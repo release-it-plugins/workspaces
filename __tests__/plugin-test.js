@@ -1,8 +1,8 @@
-const fs = require('fs');
-const { createTempDir } = require('broccoli-test-helper');
-const { factory, runTasks } = require('release-it/test/util');
-const Shell = require('release-it/lib/shell');
-const Plugin = require('../index');
+import fs from 'fs';
+import _ from 'lodash';
+import { createTempDir } from 'broccoli-test-helper';
+import { factory, runTasks } from 'release-it/test/util';
+import Plugin from '../index';
 
 const namespace = 'release-it-yarn-workspaces';
 
@@ -78,7 +78,12 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
   // we work around the same relative issue by storing the commands executed,
   // and intercepting them to return replacement values (this is done in
   // execFormattedCommand just below)
-  container.shell.exec = Shell.prototype.exec;
+  container.shell.exec = (command, options, context) => {
+    if (!command || !command.length) return;
+    return typeof command === 'string'
+      ? container.shell.execFormattedCommand(_.template(command)(context), options)
+      : container.shell.execFormattedCommand(command, options);
+  };
   container.shell.execFormattedCommand = async (command, options) => {
     const operation = {
       operationType: 'command',
@@ -195,12 +200,12 @@ describe('release-it-yarn-workspaces', () => {
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm publish ./packages/bar --tag latest",
@@ -387,12 +392,12 @@ describe('release-it-yarn-workspaces', () => {
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm publish ./packages/@scope-name/bar --tag latest",
@@ -465,12 +470,12 @@ describe('release-it-yarn-workspaces', () => {
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm publish ./dist/packages/qux --tag latest",
@@ -512,12 +517,12 @@ describe('release-it-yarn-workspaces', () => {
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm publish ./packages/bar --tag foo",
@@ -598,12 +603,12 @@ describe('release-it-yarn-workspaces', () => {
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm publish ./packages/bar --tag beta",
@@ -658,12 +663,12 @@ describe('release-it-yarn-workspaces', () => {
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm publish ./packages/bar --tag latest",
@@ -765,12 +770,12 @@ describe('release-it-yarn-workspaces', () => {
           Object {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm publish ./dist/@glimmer/interfaces --tag latest",
