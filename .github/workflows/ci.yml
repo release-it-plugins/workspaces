@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [14.x, 16.x]
 
     steps:
     - uses: actions/checkout@v1
@@ -34,7 +34,7 @@ jobs:
 
     strategy:
       matrix:
-        release-it-version: ["14.0.0", "14.1.0", "14.2.0"]
+        release-it-version: ["14.0.0", "14.1.0", "14.2.0", "15.0.0", "15.1.1"]
 
     steps:
     - uses: actions/checkout@v1

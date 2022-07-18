@@ -1,13 +1,17 @@
-const fs = require('fs');
-const path = require('path');
-const semver = require('semver');
-const urlJoin = require('url-join');
-const walkSync = require('walk-sync');
-const detectNewline = require('detect-newline');
-const detectIndent = require('detect-indent');
-const { Plugin } = require('release-it');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import semver from 'semver';
+import urlJoin from 'url-join';
+import walkSync from 'walk-sync';
+import detectNewline from 'detect-newline';
+import detectIndent from 'detect-indent';
+import { Plugin } from 'release-it';
+import validatePeerDependencies from 'validate-peer-dependencies';
 
-require('validate-peer-dependencies')(__dirname);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+validatePeerDependencies(__dirname);
 
 const options = { write: false };
 
@@ -114,7 +118,7 @@ class JSONFile {
   }
 }
 
-module.exports = class YarnWorkspacesPlugin extends Plugin {
+export default class YarnWorkspacesPlugin extends Plugin {
   static isEnabled(options) {
     return fs.existsSync(ROOT_MANIFEST_PATH) && options !== false;
   }
@@ -146,7 +150,9 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
       },
     });
 
-    const { publishConfig, workspaces } = require(path.resolve(ROOT_MANIFEST_PATH));
+    const { publishConfig, workspaces } = JSON.parse(
+      fs.readFileSync(path.resolve(ROOT_MANIFEST_PATH))
+    );
 
     this.setContext({
       publishConfig,
@@ -522,4 +528,4 @@ module.exports = class YarnWorkspacesPlugin extends Plugin {
 
     return this._workspaces;
   }
-};
+}
