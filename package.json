@@ -57,7 +57,7 @@
     "tmp": "^0.1.0"
   },
   "peerDependencies": {
-    "release-it": "^15.0.0"
+    "release-it": "^14.0.0 || ^15.0.0"
   },
   "engines": {
     "node": ">= 14"
