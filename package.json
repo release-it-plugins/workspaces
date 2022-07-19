@@ -18,8 +18,8 @@
   ],
   "scripts": {
     "lint:js": "eslint .",
-    "test": "npm-run-all lint:js test:jest",
-    "test:jest": "NODE_OPTIONS=--experimental-vm-modules npx jest"
+    "test": "npm-run-all lint:js test:vitest",
+    "test:vitest": "vitest run"
   },
   "husky": {
     "hooks": {
@@ -39,7 +39,6 @@
     "yaml": "^2.1.1"
   },
   "devDependencies": {
-    "@jest/globals": "^28.1.2",
     "@release-it-plugins/lerna-changelog": "^6.0.0",
     "broccoli-test-helper": "^2.0.0",
     "eslint": "^8.19.0",
@@ -47,15 +46,14 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^4.2.3",
-    "jest": "^28.1.2",
-    "jest-environment-node": "^28.1.2",
     "lint-staged": "^10.1.1",
     "lodash": "^4.17.21",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.0.2",
     "release-it": "^16.1.0",
     "sinon": "^9.0.1",
-    "tmp": "^0.1.0"
+    "tmp": "^0.1.0",
+    "vitest": "^0.18.1"
   },
   "peerDependencies": {
     "release-it": "^14.0.0 || ^15.2.0 || ^16.0.0"

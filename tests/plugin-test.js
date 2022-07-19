@@ -1,3 +1,4 @@
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import fs from 'fs';
 import _ from 'lodash';
 import { createTempDir } from 'broccoli-test-helper';
