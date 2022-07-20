@@ -120,7 +120,7 @@ describe('@release-it-plugins/workspaces', () => {
   let ROOT = process.cwd();
   let dir;
 
-  function setupProject(workspaces) {
+  function setupProject(workspaces, pkg = {}) {
     dir.write({
       'package.json': json({
         name: 'root',
@@ -128,6 +128,7 @@ describe('@release-it-plugins/workspaces', () => {
         license: 'MIT',
         private: true,
         workspaces,
+        ...pkg,
       }),
     });
   }
@@ -584,6 +585,104 @@ describe('@release-it-plugins/workspaces', () => {
           Object {
             "messages": Array [
               "🔗 https://www.npmjs.com/package/foo",
+            ],
+            "operationType": "log",
+          },
+        ]
+      `);
+    });
+
+    it('uses custom registry', async () => {
+      setupProject(['packages/*'], { publishConfig: { registry: 'http://my-custom-registry' } });
+      let plugin = buildPlugin();
+
+      await runTasks(plugin);
+
+      expect(plugin.operations).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "command": "npm ping --registry http://my-custom-registry",
+            "operationType": "command",
+            "options": undefined,
+          },
+          Object {
+            "command": "npm whoami --registry http://my-custom-registry",
+            "operationType": "command",
+            "options": undefined,
+          },
+          Object {
+            "command": "npm publish ./packages/bar --tag latest",
+            "operationType": "command",
+            "options": Object {
+              "write": false,
+            },
+          },
+          Object {
+            "command": "npm publish ./packages/foo --tag latest",
+            "operationType": "command",
+            "options": Object {
+              "write": false,
+            },
+          },
+          Object {
+            "messages": Array [
+              "🔗 http://my-custom-registry/package/bar",
+            ],
+            "operationType": "log",
+          },
+          Object {
+            "messages": Array [
+              "🔗 http://my-custom-registry/package/foo",
+            ],
+            "operationType": "log",
+          },
+        ]
+      `);
+    });
+
+    it('uses custom registry (scoped)', async () => {
+      setupProject(['packages/*'], {
+        publishConfig: { ['@scope:registry']: 'http://my-custom-registry' },
+      });
+      let plugin = buildPlugin();
+
+      await runTasks(plugin);
+
+      expect(plugin.operations).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "command": "npm ping --registry http://my-custom-registry",
+            "operationType": "command",
+            "options": undefined,
+          },
+          Object {
+            "command": "npm whoami --registry http://my-custom-registry",
+            "operationType": "command",
+            "options": undefined,
+          },
+          Object {
+            "command": "npm publish ./packages/bar --tag latest",
+            "operationType": "command",
+            "options": Object {
+              "write": false,
+            },
+          },
+          Object {
+            "command": "npm publish ./packages/foo --tag latest",
+            "operationType": "command",
+            "options": Object {
+              "write": false,
+            },
+          },
+          Object {
+            "messages": Array [
+              "🔗 http://my-custom-registry/package/bar",
+            ],
+            "operationType": "log",
+          },
+          Object {
+            "messages": Array [
+              "🔗 http://my-custom-registry/package/foo",
             ],
             "operationType": "log",
           },

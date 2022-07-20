@@ -394,7 +394,15 @@ export default class WorkspacesPlugin extends Plugin {
   }
 
   getRegistry() {
-    return this.getContext('publishConfig.registry') || NPM_DEFAULT_REGISTRY;
+    const { publishConfig } = this.getContext();
+    const registries = publishConfig
+      ? publishConfig.registry
+        ? [publishConfig.registry]
+        : Object.keys(publishConfig)
+            .filter((key) => key.endsWith('registry'))
+            .map((key) => publishConfig[key])
+      : [];
+    return registries[0] || NPM_DEFAULT_REGISTRY;
   }
 
   async publish({ tag, workspaceInfo, otp, access } = {}) {
