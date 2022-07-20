@@ -1,7 +1,7 @@
 import fs from 'fs';
 import _ from 'lodash';
 import { createTempDir } from 'broccoli-test-helper';
-import { factory, runTasks } from 'release-it/test/util';
+import { factory, runTasks } from 'release-it/test/util/index.js';
 import Plugin from '../index.js';
 
 const namespace = 'release-it-yarn-workspaces';
