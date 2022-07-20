@@ -7,4 +7,5 @@ export default {
   moduleNameMapper: {
     '#(.*)': '<rootDir>/node_modules/$1',
   },
+  testEnvironment: 'jest-environment-node',
 };
