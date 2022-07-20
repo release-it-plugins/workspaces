@@ -40,7 +40,7 @@ function resolveWorkspaces(workspaces) {
   }
 
   throw new Error(
-    "This package doesn't use yarn workspaces. (package.json doesn't contain a `workspaces` property)"
+    "This package doesn't use workspaces. (package.json doesn't contain a `workspaces` property)"
   );
 }
 
@@ -118,7 +118,7 @@ class JSONFile {
   }
 }
 
-export default class YarnWorkspacesPlugin extends Plugin {
+export default class WorkspacesPlugin extends Plugin {
   static isEnabled(options) {
     return fs.existsSync(ROOT_MANIFEST_PATH) && options !== false;
   }

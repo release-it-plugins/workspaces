@@ -19,6 +19,10 @@ folder and calling `npm publish`).
 Installation using your projects normal package manager, for example:
 
 ```sh
+npm install --save-dev @release-it/workspaces
+
+# or
+
 yarn add --dev --ignore-workspace-root-check @release-it-plugins/workspaces
 ```
 
@@ -62,7 +66,7 @@ A quick summary (in TypeScript syntax) of the supported options (more details
 on each just below):
 
 ```ts
-interface ReleaseItYarnWorkSpacesConfiguration {
+interface ReleaseItWorkSpacesConfiguration {
   /**
     Disables checks for `npm` registry and login info.
 
@@ -178,9 +182,9 @@ used.
 ### workspaces
 
 The list of workspaces is gathered from the `package.json` in the current
-working directory. This is the same location that `yarn install` uses, and it
+working directory. This is the same location that `npm install`/`yarn install` uses, and it
 is a great default for `@release-it-plugins/workspaces`. In some circumstances, the
-workspace settings that `yarn` should use differ from the actual locations that
+workspace settings that `npm`/`yarn` should use differ from the actual locations that
 are published.  Most commonly this is due to a custom build script that emits
 the compiled and ready to publish packages into a different location (e.g.
 `dist/packages/*`).
