@@ -122,18 +122,14 @@ describe('@release-it-plugins/workspaces', () => {
 
   function setupProject(workspaces, pkg = {}) {
     dir.write({
-      'package.json': json(
-        Object.assign(
-          {
-            name: 'root',
-            version: '0.0.0',
-            license: 'MIT',
-            private: true,
-            workspaces,
-          },
-          pkg
-        )
-      ),
+      'package.json': json({
+        name: 'root',
+        version: '0.0.0',
+        license: 'MIT',
+        private: true,
+        workspaces,
+        ...pkg,
+      }),
     });
   }
 
