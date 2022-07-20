@@ -603,12 +603,12 @@ describe('@release-it-plugins/workspaces', () => {
           Object {
             "command": "npm ping --registry http://my-custom-registry",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm whoami --registry http://my-custom-registry",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm publish ./packages/bar --tag latest",
@@ -653,12 +653,12 @@ describe('@release-it-plugins/workspaces', () => {
           Object {
             "command": "npm ping --registry http://my-custom-registry",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm whoami --registry http://my-custom-registry",
             "operationType": "command",
-            "options": Object {},
+            "options": undefined,
           },
           Object {
             "command": "npm publish ./packages/bar --tag latest",
