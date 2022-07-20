@@ -24,8 +24,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - name: install dependencies
-      run: yarn install --non-interactive --frozen-lockfile
-    - run: yarn test
+      run: npm ci
+    - run: npm test
 
   release-it-compat:
     name: "release-it@${{ matrix.release-it-version }}"
@@ -42,6 +42,6 @@ jobs:
       with:
         node-version: 14
     - name: install dependencies
-      run: yarn install --non-interactive --frozen-lockfile
-    - run: yarn add --dev release-it@${{ matrix.release-it-version }}
-    - run: yarn test
+      run: npm ci
+    - run: npm install --saveDev release-it@${{ matrix.release-it-version }}
+    - run: npm test
