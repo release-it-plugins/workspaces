@@ -1,3 +1,20 @@
+
+## v3.0.0 (2022-07-20)
+
+#### :boom: Breaking Change
+* [#73](https://github.com/release-it-plugins/release-it-yarn-workspaces/pull/73) Refactor to support release-it@15 (ESM) ([@refi93](https://github.com/refi93))
+
+#### :bug: Bug Fix
+* [#74](https://github.com/release-it-plugins/release-it-yarn-workspaces/pull/74) Bumps release-it to include fixed exports ([@scalvert](https://github.com/scalvert))
+
+#### :house: Internal
+* [#76](https://github.com/release-it-plugins/release-it-yarn-workspaces/pull/76) Use npm instead of yarn ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 2
+- Rafael Korbaš ([@refi93](https://github.com/refi93))
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v2.0.1 (2021-04-19)
 
 #### :bug: Bug Fix
