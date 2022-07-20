@@ -19,7 +19,7 @@ folder and calling `npm publish`).
 Installation using your projects normal package manager, for example:
 
 ```sh
-npm install --save-dev @release-it/workspaces
+npm install --save-dev @release-it-plugins/workspaces
 
 # or
 
