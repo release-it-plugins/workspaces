@@ -1,6 +1,9 @@
 
 ## v3.0.0 (2022-07-20)
 
+
+## v3.0.0 (2022-07-20)
+
 #### :boom: Breaking Change
 * [#73](https://github.com/release-it-plugins/release-it-yarn-workspaces/pull/73) Refactor to support release-it@15 (ESM) ([@refi93](https://github.com/refi93))
 
