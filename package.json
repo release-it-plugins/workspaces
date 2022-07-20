@@ -1,5 +1,5 @@
 {
-  "name": "release-it-yarn-workspaces",
+  "name": "@release-it-plugins/workspaces",
   "version": "2.0.1",
   "description": "release-it plugin for bumping and publishing yarn workspaces",
   "keywords": [
@@ -8,7 +8,7 @@
     "release-it-plugin",
     "plugin"
   ],
-  "repository": "https://github.com/rwjblue/release-it-yarn-workspaces",
+  "repository": "https://github.com/rwjblue/@release-it-plugins/workspaces",
   "license": "MIT",
   "author": "Robert Jackson <me@rwjblue.com>",
   "type": "module",

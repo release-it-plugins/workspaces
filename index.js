@@ -130,7 +130,7 @@ export default class YarnWorkspacesPlugin extends Plugin {
       publish: {
         type: 'confirm',
         message: (context) => {
-          const { distTag, packagesToPublish } = context['release-it-yarn-workspaces'];
+          const { distTag, packagesToPublish } = context['@release-it-plugins/workspaces'];
 
           return this._formatPublishMessage(distTag, packagesToPublish);
         },
@@ -143,7 +143,7 @@ export default class YarnWorkspacesPlugin extends Plugin {
       'publish-as-public': {
         type: 'confirm',
         message(context) {
-          const { currentPackage } = context['release-it-yarn-workspaces'];
+          const { currentPackage } = context['@release-it-plugins/workspaces'];
 
           return `Publishing ${currentPackage.name} failed because \`publishConfig.access\` is not set in its \`package.json\`.\n  Would you like to publish ${currentPackage.name} as a public package?`;
         },
