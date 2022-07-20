@@ -1,4 +1,4 @@
-# release-it-yarn-workspaces
+# @release-it-plugins/workspaces
 
 This package is a [release-it](https://github.com/release-it/release-it) plugin
 (using [`release-it`'s plugin
@@ -19,10 +19,14 @@ folder and calling `npm publish`).
 Installation using your projects normal package manager, for example:
 
 ```sh
-yarn add --dev --ignore-workspace-root-check release-it-yarn-workspaces
+npm install --save-dev @release-it/workspaces
+
+# or
+
+yarn add --dev --ignore-workspace-root-check @release-it-plugins/workspaces
 ```
 
-Once installed, configure `release-it` to use the plugin. 
+Once installed, configure `release-it` to use the plugin.
 
 For example, configuring via `package.json` would look like this:
 
@@ -30,7 +34,7 @@ For example, configuring via `package.json` would look like this:
 {
   "release-it": {
     "plugins": {
-      "release-it-yarn-workspaces": true
+      "@release-it-plugins/workspaces": true
     }
   }
 }
@@ -46,7 +50,7 @@ would add the following to your `release-it` config (again showing
 {
   "release-it": {
     "plugins": {
-      "release-it-yarn-workspaces": true
+      "@release-it-plugins/workspaces": true
     },
     "npm": false
   }
@@ -55,14 +59,14 @@ would add the following to your `release-it` config (again showing
 
 ## Configuration
 
-For the most part `release-it-yarn-workspaces` "does the right thing", but
+For the most part `@release-it-plugins/workspaces` "does the right thing", but
 there are a few things that are configurable.
 
 A quick summary (in TypeScript syntax) of the supported options (more details
 on each just below):
 
 ```ts
-interface ReleaseItYarnWorkSpacesConfiguration {
+interface ReleaseItWorkSpacesConfiguration {
   /**
     Disables checks for `npm` registry and login info.
 
@@ -115,7 +119,7 @@ interface ReleaseItYarnWorkSpacesConfiguration {
 
 ### skipChecks
 
-By default, `release-it-yarn-workspaces` confirms that the `npm` registry is up
+By default, `@release-it-plugins/workspaces` confirms that the `npm` registry is up
 and running (via `npm ping`) and that you are authenticated properly (via `npm
 whoami`). If you'd prefer to avoid these checks (e.g. your custom `npm`
 registry does not support them) you can specify the `skipChecks` option:
@@ -124,7 +128,7 @@ registry does not support them) you can specify the `skipChecks` option:
 {
   "release-it": {
     "plugins": {
-      "release-it-yarn-workspaces": {
+      "@release-it-plugins/workspaces": {
         "skipChecks": true
       }
     }
@@ -134,7 +138,7 @@ registry does not support them) you can specify the `skipChecks` option:
 
 ### publish
 
-`release-it-yarn-workspaces` publishes to the `npm` registry.
+`@release-it-plugins/workspaces` publishes to the `npm` registry.
 However, some repository configurations prefer to commit + tag then let CI
 publish the actual packages to the registry. This is where the `publish` option
 comes in:
@@ -143,7 +147,7 @@ comes in:
 {
   "release-it": {
     "plugins": {
-      "release-it-yarn-workspaces": {
+      "@release-it-plugins/workspaces": {
         "publish": false
       }
     }
@@ -157,7 +161,7 @@ published.
 
 ### distTag
 
-`release-it-yarn-workspaces` uses the `latest` dist-tag when the
+`@release-it-plugins/workspaces` uses the `latest` dist-tag when the
 released version is a stable release and the prereleaseId when it is a
 prerelease (e.g. `beta` for `1.0.0-beta.1`). This is a good default setup, but
 there may be cases where you would like to specify a custom dist-tag to be
@@ -167,7 +171,7 @@ used.
 {
   "release-it": {
     "plugins": {
-      "release-it-yarn-workspaces": {
+      "@release-it-plugins/workspaces": {
         "distTag": "lts"
       }
     }
@@ -178,9 +182,9 @@ used.
 ### workspaces
 
 The list of workspaces is gathered from the `package.json` in the current
-working directory. This is the same location that `yarn install` uses, and it
-is a great default for `release-it-yarn-workspaces`. In some circumstances, the
-workspace settings that `yarn` should use differ from the actual locations that
+working directory. This is the same location that `npm install`/`yarn install` uses, and it
+is a great default for `@release-it-plugins/workspaces`. In some circumstances, the
+workspace settings that `npm`/`yarn` should use differ from the actual locations that
 are published.  Most commonly this is due to a custom build script that emits
 the compiled and ready to publish packages into a different location (e.g.
 `dist/packages/*`).
@@ -189,7 +193,7 @@ the compiled and ready to publish packages into a different location (e.g.
 {
   "release-it": {
     "plugins": {
-      "release-it-yarn-workspaces": {
+      "@release-it-plugins/workspaces": {
         "workspaces": ["dist/packages/*"]
       }
     }
@@ -198,7 +202,7 @@ the compiled and ready to publish packages into a different location (e.g.
 ```
 
 This value replaces the value from `package.json`, and given the above
-configuration `release-it-yarn-workspaces` would publish each package (that was
+configuration `@release-it-plugins/workspaces` would publish each package (that was
 not private) in `dist/packages` folder.
 
 ### additionalManifests
@@ -213,7 +217,7 @@ you may publish an alternate `docs.json` file in your published package.
 {
   "release-it": {
     "plugins": {
-      "release-it-yarn-workspaces": {
+      "@release-it-plugins/workspaces": {
         "additionalManifests": {
           "versionUpdates": ["dist/docs.json"]
       }
@@ -239,7 +243,7 @@ newly published versions.
 {
   "release-it": {
     "plugins": {
-      "release-it-yarn-workspaces": {
+      "@release-it-plugins/workspaces": {
         "additionalManifests": {
           "dependencyUpdates": ["blueprints/*/package.json"]
       }

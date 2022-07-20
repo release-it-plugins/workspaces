@@ -40,7 +40,7 @@ function resolveWorkspaces(workspaces) {
   }
 
   throw new Error(
-    "This package doesn't use yarn workspaces. (package.json doesn't contain a `workspaces` property)"
+    "This package doesn't use workspaces. (package.json doesn't contain a `workspaces` property)"
   );
 }
 
@@ -118,7 +118,7 @@ class JSONFile {
   }
 }
 
-export default class YarnWorkspacesPlugin extends Plugin {
+export default class WorkspacesPlugin extends Plugin {
   static isEnabled(options) {
     return fs.existsSync(ROOT_MANIFEST_PATH) && options !== false;
   }
@@ -130,7 +130,7 @@ export default class YarnWorkspacesPlugin extends Plugin {
       publish: {
         type: 'confirm',
         message: (context) => {
-          const { distTag, packagesToPublish } = context['release-it-yarn-workspaces'];
+          const { distTag, packagesToPublish } = context['@release-it-plugins/workspaces'];
 
           return this._formatPublishMessage(distTag, packagesToPublish);
         },
@@ -143,7 +143,7 @@ export default class YarnWorkspacesPlugin extends Plugin {
       'publish-as-public': {
         type: 'confirm',
         message(context) {
-          const { currentPackage } = context['release-it-yarn-workspaces'];
+          const { currentPackage } = context['@release-it-plugins/workspaces'];
 
           return `Publishing ${currentPackage.name} failed because \`publishConfig.access\` is not set in its \`package.json\`.\n  Would you like to publish ${currentPackage.name} as a public package?`;
         },

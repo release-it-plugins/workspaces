@@ -1,14 +1,14 @@
 {
-  "name": "release-it-yarn-workspaces",
-  "version": "3.0.0",
-  "description": "release-it plugin for bumping and publishing yarn workspaces",
+  "name": "@release-it-plugins/workspaces",
+  "version": "2.0.1",
+  "description": "release-it plugin for bumping and publishing workspaces",
   "keywords": [
     "release",
     "release-it",
     "release-it-plugin",
     "plugin"
   ],
-  "repository": "https://github.com/rwjblue/release-it-yarn-workspaces",
+  "repository": "https://github.com/@release-it-plugins/workspaces",
   "license": "MIT",
   "author": "Robert Jackson <me@rwjblue.com>",
   "type": "module",
@@ -63,7 +63,8 @@
     "node": ">= 14"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "release-it": {
     "plugins": {
