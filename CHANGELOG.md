@@ -1,4 +1,14 @@
 
+
+## v3.1.0 (2022-07-21)
+
+#### :rocket: Enhancement
+* [#65](https://github.com/release-it-plugins/workspaces/pull/65) supports scoped registry names ([@hnrchrdl](https://github.com/hnrchrdl))
+
+#### Committers: 1
+- Hinrich ([@hnrchrdl](https://github.com/hnrchrdl))
+
+
 ## v3.0.0 (2022-07-20)
 
 
