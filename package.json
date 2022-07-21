@@ -62,9 +62,13 @@
   "engines": {
     "node": ">= 14"
   },
+  "volta": {
+    "node": "14.20.0",
+    "npm": "8.14.0"
+  },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "release-it": {
     "plugins": {
@@ -80,9 +84,5 @@
       "release": true,
       "tokenRef": "GITHUB_AUTH"
     }
-  },
-  "volta": {
-    "node": "14.20.0",
-    "npm": "8.14.0"
   }
 }
