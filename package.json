@@ -8,7 +8,7 @@
     "release-it-plugin",
     "plugin"
   ],
-  "repository": "https://github.com/@release-it-plugins/workspaces",
+  "repository": "https://github.com/release-it-plugins/workspaces",
   "license": "MIT",
   "author": "Robert Jackson <me@rwjblue.com>",
   "type": "module",
