@@ -1,6 +1,7 @@
 import fs from 'fs';
 import _ from 'lodash';
 import { createTempDir } from 'broccoli-test-helper';
+import YAML from 'yaml';
 import { factory, runTasks } from 'release-it/test/util/index.js';
 import Plugin from '../index.js';
 
@@ -129,6 +130,23 @@ describe('@release-it-plugins/workspaces', () => {
         private: true,
         workspaces,
         ...pkg,
+      }),
+    });
+  }
+
+  function setupPnpmWorkspace(packages) {
+    dir.write({
+      'package.json': json({
+        name: 'root',
+        version: '0.0.0',
+        license: 'MIT',
+        private: true,
+      }),
+    });
+
+    dir.write({
+      'pnpm-workspace.yaml': YAML.stringify({
+        packages,
       }),
     });
   }
@@ -946,6 +964,20 @@ describe('@release-it-plugins/workspaces', () => {
 
     it('returns stable values', async () => {
       setupProject(['packages/*']);
+
+      setupWorkspace({ name: 'bar' });
+      setupWorkspace({ name: 'foo', private: true });
+
+      let plugin = buildPlugin();
+
+      let workspaces1 = await plugin.getWorkspaces();
+      let workspaces2 = await plugin.getWorkspaces();
+
+      expect(workspaces1).toStrictEqual(workspaces2);
+    });
+
+    it('returns stable values for PNPM', async () => {
+      setupPnpmWorkspace(['packages/*']);
 
       setupWorkspace({ name: 'bar' });
       setupWorkspace({ name: 'foo', private: true });
