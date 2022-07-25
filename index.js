@@ -8,6 +8,7 @@ import detectNewline from 'detect-newline';
 import detectIndent from 'detect-indent';
 import { Plugin } from 'release-it';
 import validatePeerDependencies from 'validate-peer-dependencies';
+import YAML from 'yaml';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,6 +17,7 @@ validatePeerDependencies(__dirname);
 const options = { write: false };
 
 const ROOT_MANIFEST_PATH = './package.json';
+const PNPM_WORKSPACE_PATH = './pnpm-workspace.yaml';
 const REGISTRY_TIMEOUT = 10000;
 const DEFAULT_TAG = 'latest';
 const NPM_BASE_URL = 'https://www.npmjs.com';
@@ -30,6 +32,18 @@ async function rejectAfter(ms, error) {
   await sleep(ms);
 
   throw error;
+}
+
+function discoverWorkspaces() {
+  let { publishConfig, workspaces } = JSON.parse(fs.readFileSync(path.resolve(ROOT_MANIFEST_PATH)));
+
+  if (!workspaces && fs.existsSync(PNPM_WORKSPACE_PATH)) {
+    ({ packages: workspaces } = YAML.parse(
+      fs.readFileSync(path.resolve(PNPM_WORKSPACE_PATH), { encoding: 'utf-8' })
+    ));
+  }
+
+  return { publishConfig, workspaces };
 }
 
 function resolveWorkspaces(workspaces) {
@@ -150,9 +164,7 @@ export default class WorkspacesPlugin extends Plugin {
       },
     });
 
-    const { publishConfig, workspaces } = JSON.parse(
-      fs.readFileSync(path.resolve(ROOT_MANIFEST_PATH))
-    );
+    const { publishConfig, workspaces } = discoverWorkspaces();
 
     this.setContext({
       publishConfig,
