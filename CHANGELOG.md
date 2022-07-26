@@ -1,5 +1,18 @@
 
 
+
+## v3.2.0 (2022-07-26)
+
+#### :rocket: Enhancement
+* [#79](https://github.com/release-it-plugins/workspaces/pull/79) Adds support for pnpm ([@scalvert](https://github.com/scalvert))
+
+#### :bug: Bug Fix
+* [#81](https://github.com/release-it-plugins/workspaces/pull/81) Bumps release-it to fix scoped context lookup ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 1
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v3.1.0 (2022-07-21)
 
 #### :rocket: Enhancement

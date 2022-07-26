@@ -1,6 +1,6 @@
 {
   "name": "@release-it-plugins/workspaces",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "release-it plugin for bumping and publishing workspaces",
   "keywords": [
     "release",
