@@ -424,7 +424,7 @@ export default class WorkspacesPlugin extends Plugin {
     const dryRunArg = this.config.isDryRun ? ' --dry-run' : '';
 
     if (workspaceInfo.isPrivate) {
-      this.log.warn(`${workspaceInfo.name}: Skip publish (package is private)`);
+      this.debug(`${workspaceInfo.name}: Skip publish (package is private)`);
       return;
     }
 
