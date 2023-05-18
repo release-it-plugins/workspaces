@@ -260,6 +260,62 @@ describe('@release-it-plugins/workspaces', () => {
       expect(readWorkspacePackage('foo').version).toEqual('1.0.1');
     });
 
+    it('publishes from the publishPath attribute of the package.json', async () => {
+      setupProject({ packages: ['packages/*'] });
+
+      setupWorkspace({ name: 'foo' });
+      setupWorkspace({ name: 'bar', publishPath: 'dist' });
+
+      let plugin = buildPlugin();
+
+      await runTasks(plugin);
+
+      expect(plugin.operations).toMatchInlineSnapshot(`
+        Array [
+          Object {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "operationType": "command",
+            "options": undefined,
+          },
+          Object {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "operationType": "command",
+            "options": undefined,
+          },
+          Object {
+            "command": "npm publish ./packages/bar/dist --tag latest",
+            "operationType": "command",
+            "options": Object {
+              "write": false,
+            },
+          },
+          Object {
+            "command": "npm publish ./packages/foo --tag latest",
+            "operationType": "command",
+            "options": Object {
+              "write": false,
+            },
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/bar",
+            ],
+            "operationType": "log",
+          },
+          Object {
+            "messages": Array [
+              "🔗 https://www.npmjs.com/package/foo",
+            ],
+            "operationType": "log",
+          },
+        ]
+      `);
+
+      expect(JSON.parse(dir.readText('package.json')).version).toEqual('1.0.1');
+      expect(readWorkspacePackage('bar').version).toEqual('1.0.1');
+      expect(readWorkspacePackage('foo').version).toEqual('1.0.1');
+    });
+
     it('updates dependencies / devDependencies of packages', async () => {
       setupWorkspace({ name: 'derp' });
       setupWorkspace({ name: 'qux' });
