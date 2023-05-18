@@ -534,7 +534,7 @@ export default class WorkspacesPlugin extends Plugin {
       let absolutePath = path.join(root, file);
       let pkgInfo = JSONFile.for(absolutePath);
 
-      let relativeRoot = path.dirname(file);
+      let relativeRoot = path.join(path.dirname(file), pkgInfo.pkg.publishPath || '');
 
       return {
         root: path.join(root, relativeRoot),
