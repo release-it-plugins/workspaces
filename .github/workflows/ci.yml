@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [16.x, 18.x]
 
     steps:
     - uses: actions/checkout@v1
@@ -34,13 +34,13 @@ jobs:
 
     strategy:
       matrix:
-        release-it-version: ["14.0.0", "14.1.0", "14.2.0", "15.2.0", "^15.0.0"]
+        release-it-version: ["14.0.0", "14.1.0", "14.2.0", "15.2.0", "^15.0.0", "^16.0.0"]
 
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-node@v1
       with:
-        node-version: 14
+        node-version: 16
     - name: install dependencies
       run: npm ci
     - run: npm install --saveDev release-it@${{ matrix.release-it-version }}
