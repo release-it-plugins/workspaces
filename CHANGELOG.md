@@ -1,6 +1,25 @@
 
 
 
+
+## v4.0.0 (2023-07-11)
+
+#### :boom: Breaking Change
+* [#106](https://github.com/release-it-plugins/workspaces/pull/106) Upgrades release-it to 16.x. Upgrades node to 16.x ([@scalvert](https://github.com/scalvert))
+
+#### :rocket: Enhancement
+* [#88](https://github.com/release-it-plugins/workspaces/pull/88) Avoid warning about private packages ([@rwjblue](https://github.com/rwjblue))
+
+#### :house: Internal
+* [#107](https://github.com/release-it-plugins/workspaces/pull/107) Convert to vitest ([@scalvert](https://github.com/scalvert))
+* [#90](https://github.com/release-it-plugins/workspaces/pull/90) Add `release-it@^15.0.0` (latest 15.x) to CI ([@rwjblue](https://github.com/rwjblue))
+* [#89](https://github.com/release-it-plugins/workspaces/pull/89) Add Node 18 to CI ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 2
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v3.2.0 (2022-07-26)
 
 #### :rocket: Enhancement
