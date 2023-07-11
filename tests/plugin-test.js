@@ -1,3 +1,4 @@
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import fs from 'fs';
 import _ from 'lodash';
 import { createTempDir } from 'broccoli-test-helper';
@@ -215,39 +216,39 @@ describe('@release-it-plugins/workspaces', () => {
       await runTasks(plugin);
 
       expect(plugin.operations).toMatchInlineSnapshot(`
-        Array [
-          Object {
+        [
+          {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm publish ./packages/bar --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
+          {
             "command": "npm publish ./packages/foo --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/bar",
             ],
             "operationType": "log",
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/foo",
             ],
             "operationType": "log",
@@ -407,46 +408,46 @@ describe('@release-it-plugins/workspaces', () => {
       await runTasks(plugin);
 
       expect(plugin.operations).toMatchInlineSnapshot(`
-        Array [
-          Object {
+        [
+          {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm publish ./packages/@scope-name/bar --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
+          {
             "command": "npm publish ./packages/@scope-name/bar --tag latest --access public",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
+          {
             "command": "npm publish ./packages/@scope-name/foo --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/@scope-name/bar",
             ],
             "operationType": "log",
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/@scope-name/foo",
             ],
             "operationType": "log",
@@ -485,39 +486,39 @@ describe('@release-it-plugins/workspaces', () => {
       await runTasks(plugin);
 
       expect(plugin.operations).toMatchInlineSnapshot(`
-        Array [
-          Object {
+        [
+          {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm publish ./dist/packages/qux --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
+          {
             "command": "npm publish ./dist/packages/zorp --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/qux",
             ],
             "operationType": "log",
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/zorp",
             ],
             "operationType": "log",
@@ -532,39 +533,39 @@ describe('@release-it-plugins/workspaces', () => {
       await runTasks(plugin);
 
       expect(plugin.operations).toMatchInlineSnapshot(`
-        Array [
-          Object {
+        [
+          {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm publish ./packages/bar --tag foo",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
+          {
             "command": "npm publish ./packages/foo --tag foo",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/bar",
             ],
             "operationType": "log",
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/foo",
             ],
             "operationType": "log",
@@ -579,29 +580,29 @@ describe('@release-it-plugins/workspaces', () => {
       await runTasks(plugin);
 
       expect(plugin.operations).toMatchInlineSnapshot(`
-        Array [
-          Object {
+        [
+          {
             "command": "npm publish ./packages/bar --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
+          {
             "command": "npm publish ./packages/foo --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/bar",
             ],
             "operationType": "log",
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/foo",
             ],
             "operationType": "log",
@@ -617,39 +618,39 @@ describe('@release-it-plugins/workspaces', () => {
       await runTasks(plugin);
 
       expect(plugin.operations).toMatchInlineSnapshot(`
-        Array [
-          Object {
+        [
+          {
             "command": "npm ping --registry http://my-custom-registry",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm whoami --registry http://my-custom-registry",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm publish ./packages/bar --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
+          {
             "command": "npm publish ./packages/foo --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 http://my-custom-registry/package/bar",
             ],
             "operationType": "log",
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 http://my-custom-registry/package/foo",
             ],
             "operationType": "log",
@@ -667,39 +668,39 @@ describe('@release-it-plugins/workspaces', () => {
       await runTasks(plugin);
 
       expect(plugin.operations).toMatchInlineSnapshot(`
-        Array [
-          Object {
+        [
+          {
             "command": "npm ping --registry http://my-custom-registry",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm whoami --registry http://my-custom-registry",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm publish ./packages/bar --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
+          {
             "command": "npm publish ./packages/foo --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 http://my-custom-registry/package/bar",
             ],
             "operationType": "log",
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 http://my-custom-registry/package/foo",
             ],
             "operationType": "log",
@@ -716,39 +717,39 @@ describe('@release-it-plugins/workspaces', () => {
       await runTasks(plugin);
 
       expect(plugin.operations).toMatchInlineSnapshot(`
-        Array [
-          Object {
+        [
+          {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm publish ./packages/bar --tag beta",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
+          {
             "command": "npm publish ./packages/foo --tag beta",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/bar",
             ],
             "operationType": "log",
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/foo",
             ],
             "operationType": "log",
@@ -776,39 +777,39 @@ describe('@release-it-plugins/workspaces', () => {
       await runTasks(plugin);
 
       expect(plugin.operations).toMatchInlineSnapshot(`
-        Array [
-          Object {
+        [
+          {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm publish ./packages/bar --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
+          {
             "command": "npm publish ./packages/foo --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/bar",
             ],
             "operationType": "log",
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/foo",
             ],
             "operationType": "log",
@@ -883,39 +884,39 @@ describe('@release-it-plugins/workspaces', () => {
       });
 
       expect(plugin.operations).toMatchInlineSnapshot(`
-        Array [
-          Object {
+        [
+          {
             "command": "npm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
-          Object {
+          {
             "command": "npm publish ./dist/@glimmer/interfaces --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
+          {
             "command": "npm publish ./dist/@glimmer/runtime --tag latest",
             "operationType": "command",
-            "options": Object {
+            "options": {
               "write": false,
             },
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/@glimmer/interfaces",
             ],
             "operationType": "log",
           },
-          Object {
-            "messages": Array [
+          {
+            "messages": [
               "🔗 https://www.npmjs.com/package/@glimmer/runtime",
             ],
             "operationType": "log",
