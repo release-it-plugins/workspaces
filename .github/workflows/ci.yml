@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: "Node ${{ matrix.node-version }}"
+    name: 'Node ${{ matrix.node-version }}'
 
     runs-on: ubuntu-latest
 
@@ -19,29 +19,27 @@ jobs:
         node-version: [16.x, 18.x]
 
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: install dependencies
-      run: npm ci
-    - run: npm test
+      - uses: actions/checkout@v3.0.2
+      - uses: volta-cli/action@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: install dependencies
+        run: npm ci
+      - run: npm test
 
   release-it-compat:
-    name: "release-it@${{ matrix.release-it-version }}"
+    name: 'release-it@${{ matrix.release-it-version }}'
 
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        release-it-version: ["14.0.0", "14.1.0", "14.2.0", "15.2.0", "^15.0.0", "^16.0.0"]
+        release-it-version: ['14.0.0', '14.1.0', '14.2.0', '15.2.0', '^15.0.0', '^16.0.0']
 
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
-      with:
-        node-version: 16
-    - name: install dependencies
-      run: npm ci
-    - run: npm install --saveDev release-it@${{ matrix.release-it-version }}
-    - run: npm test
+      - uses: actions/checkout@v3.0.2
+      - uses: volta-cli/action@v4
+      - name: install dependencies
+        run: npm ci
+      - run: npm install --saveDev release-it@${{ matrix.release-it-version }}
+      - run: npm test
