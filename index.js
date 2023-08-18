@@ -399,6 +399,11 @@ export default class WorkspacesPlugin extends Plugin {
     }
   }
 
+  getPublicPath() {
+    const { publishConfig } = this.getContext();
+    return (publishConfig && publishConfig.publicPath) ?? '';
+  }
+
   getReleaseUrl(workspaceInfo) {
     const registry = this.getRegistry();
     const baseUrl = registry !== NPM_DEFAULT_REGISTRY ? registry : NPM_BASE_URL;
