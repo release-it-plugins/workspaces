@@ -235,11 +235,14 @@ export default class WorkspacesPlugin extends Plugin {
         }
       };
 
+      const skipReferenceUpdates = this.getContext('skipReferenceUpdates');
       workspaces.forEach(({ relativeRoot, pkgInfo }) => {
         this.log.exec(`Processing ${relativeRoot}/package.json:`);
 
         updateVersion(pkgInfo);
-        this._updateDependencies(pkgInfo, version);
+        if (!skipReferenceUpdates) {
+          this._updateDependencies(pkgInfo, version);
+        }
 
         if (!isDryRun) {
           pkgInfo.write();

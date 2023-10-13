@@ -574,6 +574,33 @@ describe('@release-it-plugins/workspaces', () => {
       `);
     });
 
+    it('skips updating dependency referencs with skipReferenceUpdates', async () => {
+      setupProject(['packages/@glimmer/*']);
+      setupWorkspace({ name: '@glimmer/interfaces', version: '1.0.0' });
+      setupWorkspace({
+        name: '@glimmer/runtime',
+        version: '1.0.0',
+        dependencies: { '@glimmer/interfaces': 'workspace:*' },
+      });
+
+      let plugin = buildPlugin({ skipReferenceUpdates: true });
+
+      await runTasks(plugin);
+
+      // dist was updated
+      expect(JSON.parse(dir.readText('packages/@glimmer/interfaces/package.json'))).toEqual({
+        license: 'MIT',
+        name: '@glimmer/interfaces',
+        version: '1.0.1',
+      });
+      expect(JSON.parse(dir.readText('packages/@glimmer/runtime/package.json'))).toEqual({
+        license: 'MIT',
+        name: '@glimmer/runtime',
+        version: '1.0.1',
+        dependencies: { '@glimmer/interfaces': 'workspace:*' },
+      });
+    });
+
     it('skips registry checks with skipChecks', async () => {
       let plugin = buildPlugin({ skipChecks: true });
 
