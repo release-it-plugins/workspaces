@@ -235,14 +235,11 @@ export default class WorkspacesPlugin extends Plugin {
         }
       };
 
-      const skipReferenceUpdates = this.getContext('skipReferenceUpdates');
       workspaces.forEach(({ relativeRoot, pkgInfo }) => {
         this.log.exec(`Processing ${relativeRoot}/package.json:`);
 
         updateVersion(pkgInfo);
-        if (!skipReferenceUpdates) {
-          this._updateDependencies(pkgInfo, version);
-        }
+        this._updateDependencies(pkgInfo, version);
 
         if (!isDryRun) {
           pkgInfo.write();
@@ -334,6 +331,15 @@ export default class WorkspacesPlugin extends Plugin {
         for (let dependency in dependencies) {
           if (workspaces.find((w) => w.name === dependency)) {
             const existingVersion = dependencies[dependency];
+
+            /**
+             * If pnpm is being used, the Workspace protocol may also be used
+             * https://pnpm.io/workspaces#workspace-protocol-workspace
+             * if it is, these version references are handled on publish
+             * by `pnpm publish`.
+             */
+            if (existingVersion.startsWith('workspace:')) continue;
+
             const replacementVersion = this._buildReplacementDepencencyVersion(
               existingVersion,
               newVersion

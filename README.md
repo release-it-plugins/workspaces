@@ -205,24 +205,6 @@ This value replaces the value from `package.json`, and given the above
 configuration `@release-it-plugins/workspaces` would publish each package (that was
 not private) in `dist/packages` folder.
 
-### skipReferenceUpdates
-
-By default when the `version` of a package is updated, all consumers within the monorepo will have their `dependencies`, `devDependencies`, and `peerDependencies` updated as well. This may be undesired when using `pnpm`, as folks using release-it with `pnpm` will want to use `pnpm -r publish` so that packages have correctly have their `dependencies` (etc) updated during publish, but in source, the [workspace protocol](https://pnpm.io/workspaces#workspace-protocol-workspace) is maintained.
-
-```json
-{
-  "release-it": {
-    "plugins": {
-      "@release-it-plugins/workspaces": {
-        "skipReferenceUpdates": true
-      }
-    }
-  }
-}
-```
-
-The default value is `false`, so `npm`, and `yarn` projects typically don't need to worry about this setting.
-
 ### additionalManifests
 
 #### versionUpdates
