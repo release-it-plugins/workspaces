@@ -611,6 +611,57 @@ describe('@release-it-plugins/workspaces', () => {
       `);
     });
 
+    it('uses custom publish command', async () => {
+      setupProject(['packages/*']);
+      let plugin = buildPlugin({
+        publishCommand: 'pnpm publish'
+      });
+
+      await runTasks(plugin);
+
+      expect(plugin.operations).toMatchInlineSnapshot(`
+        [
+          {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "operationType": "command",
+            "options": undefined,
+          },
+          {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "operationType": "command",
+            "options": undefined,
+          },
+          {
+            "command": "pnpm publish ./packages/bar --tag latest",
+            "operationType": "command",
+            "options": {
+              "write": false,
+            },
+          },
+          {
+            "command": "pnpm publish ./packages/foo --tag latest",
+            "operationType": "command",
+            "options": {
+              "write": false,
+            },
+          },
+          {
+            "messages": [
+              "🔗 https://www.npmjs.com/package/bar",
+            ],
+            "operationType": "log",
+          },
+          {
+            "messages": [
+              "🔗 https://www.npmjs.com/package/foo",
+            ],
+            "operationType": "log",
+          },
+        ]
+      `);
+    });
+
+
     it('uses custom registry', async () => {
       setupProject(['packages/*'], { publishConfig: { registry: 'http://my-custom-registry' } });
       let plugin = buildPlugin();

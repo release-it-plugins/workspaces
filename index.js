@@ -428,9 +428,11 @@ export default class WorkspacesPlugin extends Plugin {
       return;
     }
 
+    const publishCommand = this.getContext().publishCommand ?? 'npm publish';
+
     try {
       await this.exec(
-        `npm publish ./${workspaceInfo.relativeRoot} --tag ${tag}${accessArg}${otpArg}${dryRunArg}`,
+        `${publishCommand} ./${workspaceInfo.relativeRoot} --tag ${tag}${accessArg}${otpArg}${dryRunArg}`,
         {
           options,
         }

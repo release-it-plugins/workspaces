@@ -159,6 +159,27 @@ With this configuration, the `package.json` files in your workspaces would be
 updated with the new version information but the packages would not be
 published.
 
+### publishCommand
+
+`@release-it-plugins/workspaces` uses `npm publish` by default.
+Some repository configurations may wish to use a different publish command.
+Using `publishCommand`, this can be changed:
+
+```json
+{
+  "release-it": {
+    "plugins": {
+      "@release-it-plugins/workspaces": {
+        "publishCommand": "pnpm publish"
+      }
+    }
+  }
+}
+```
+
+With this configuration, `pnpm publish` will be used for each workspace instead of `npm publish`
+
+
 ### distTag
 
 `@release-it-plugins/workspaces` uses the `latest` dist-tag when the
