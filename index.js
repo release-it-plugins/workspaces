@@ -357,7 +357,6 @@ export default class WorkspacesPlugin extends Plugin {
         for (let dependency in dependencies) {
           if (workspaces.find((w) => w.name === dependency)) {
             const existingVersion = dependencies[dependency];
-
             const replacementVersion = this._buildReplacementDepencencyVersion(
               existingVersion,
               newVersion

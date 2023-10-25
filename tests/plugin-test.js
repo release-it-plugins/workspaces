@@ -574,7 +574,7 @@ describe('@release-it-plugins/workspaces', () => {
       `);
     });
 
-    it('skips updating dependency referencs with skipReferenceUpdates', async () => {
+    it('supports the workspace protocol as used in the glimmer-vm repo', async () => {
       setupProject(['packages/@glimmer/*']);
       setupWorkspace({ name: '@glimmer/interfaces', version: '1.0.0' });
       setupWorkspace({
@@ -583,7 +583,7 @@ describe('@release-it-plugins/workspaces', () => {
         dependencies: { '@glimmer/interfaces': 'workspace:*' },
       });
 
-      let plugin = buildPlugin({ skipReferenceUpdates: true });
+      let plugin = buildPlugin();
 
       await runTasks(plugin);
 
