@@ -19,6 +19,7 @@
   "scripts": {
     "lint:js": "eslint .",
     "test": "npm-run-all lint:js test:vitest",
+    "test:watch": "vitest --no-threads",
     "test:vitest": "vitest run --no-threads"
   },
   "husky": {
@@ -32,6 +33,7 @@
   "dependencies": {
     "detect-indent": "^6.0.0",
     "detect-newline": "^3.1.0",
+    "find-up": "^6.3.0",
     "semver": "^7.1.3",
     "url-join": "^4.0.1",
     "validate-peer-dependencies": "^1.0.0",

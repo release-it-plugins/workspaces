@@ -1147,5 +1147,12 @@ describe('@release-it-plugins/workspaces', () => {
     updatesTo({ existing: '^1.0.0', new: '2.0.0-beta.1', expected: '^2.0.0-beta.1' });
     updatesTo({ existing: '^1.0.0-beta.1', new: '1.0.0-beta.2', expected: '^1.0.0-beta.2' });
     updatesTo({ existing: '^1.0.0-beta.1', new: '1.0.0', expected: '^1.0.0' });
+
+    updatesTo({ existing: 'workspace:^1.0.0', new: '2.0.0', expected: 'workspace:^2.0.0' });
+    updatesTo({ existing: 'workspace:~1.0.0', new: '2.0.0', expected: 'workspace:~2.0.0' });
+    updatesTo({ existing: 'workspace:1.0.0', new: '2.0.0', expected: 'workspace:2.0.0' });
+    updatesTo({ existing: 'workspace:^', new: '2.0.0', expected: 'workspace:^' });
+    updatesTo({ existing: 'workspace:~', new: '2.0.0', expected: 'workspace:~' });
+    updatesTo({ existing: 'workspace:*', new: '2.0.0', expected: 'workspace:*' });
   });
 });

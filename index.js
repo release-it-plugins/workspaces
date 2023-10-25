@@ -9,6 +9,7 @@ import detectIndent from 'detect-indent';
 import { Plugin } from 'release-it';
 import validatePeerDependencies from 'validate-peer-dependencies';
 import YAML from 'yaml';
+import { findUp } from 'find-up';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -275,6 +276,16 @@ export default class WorkspacesPlugin extends Plugin {
       }
     };
 
+    /**
+     * In workflows where publishing is handled on C.I.,
+     * and not be release-it, the environment will often require
+     * that the lockfile be updated -- this is usually done by
+     * running the install command for the package manager.
+     */
+    if (await findUp('pnpm-lock.yaml')) {
+      await this.exec(`pnpm install`);
+    }
+
     return this.spinner.show({ task, label: 'npm version' });
   }
 
@@ -309,14 +320,29 @@ export default class WorkspacesPlugin extends Plugin {
   }
 
   _buildReplacementDepencencyVersion(existingVersion, newVersion) {
-    let firstChar = existingVersion[0];
+    let prefix = '';
+    let firstChar = '';
+    let range = existingVersion;
+    let suffix = newVersion;
 
-    // preserve existing floating constraint
-    if (['^', '~'].includes(firstChar)) {
-      return `${firstChar}${newVersion}`;
+    // preserve workspace protocol prefix,
+    // tools that use this replace with a real version during the publish the process
+    if (existingVersion.startsWith('workspace:')) {
+      prefix = 'workspace:';
+      range = existingVersion.split(':')[1];
+      suffix = range.length > 1 ? newVersion : '';
     }
 
-    return newVersion;
+    // preserve existing floating constraint
+    if (['^', '~'].includes(range[0])) {
+      firstChar = range[0];
+    }
+
+    if ('*' === range) {
+      return `${prefix}*`;
+    }
+
+    return `${prefix}${firstChar}${suffix}`;
   }
 
   _updateDependencies(pkgInfo, newVersion) {
@@ -331,14 +357,6 @@ export default class WorkspacesPlugin extends Plugin {
         for (let dependency in dependencies) {
           if (workspaces.find((w) => w.name === dependency)) {
             const existingVersion = dependencies[dependency];
-
-            /**
-             * If pnpm is being used, the Workspace protocol may also be used
-             * https://pnpm.io/workspaces#workspace-protocol-workspace
-             * if it is, these version references are handled on publish
-             * by `pnpm publish`.
-             */
-            if (existingVersion.startsWith('workspace:')) continue;
 
             const replacementVersion = this._buildReplacementDepencencyVersion(
               existingVersion,
