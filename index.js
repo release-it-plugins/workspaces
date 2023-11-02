@@ -9,7 +9,6 @@ import detectIndent from 'detect-indent';
 import { Plugin } from 'release-it';
 import validatePeerDependencies from 'validate-peer-dependencies';
 import YAML from 'yaml';
-import { findUp } from 'find-up';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,13 +37,17 @@ async function rejectAfter(ms, error) {
 function discoverWorkspaces() {
   let { publishConfig, workspaces } = JSON.parse(fs.readFileSync(path.resolve(ROOT_MANIFEST_PATH)));
 
-  if (!workspaces && fs.existsSync(PNPM_WORKSPACE_PATH)) {
+  if (!workspaces && hasPnpm()) {
     ({ packages: workspaces } = YAML.parse(
       fs.readFileSync(path.resolve(PNPM_WORKSPACE_PATH), { encoding: 'utf-8' })
     ));
   }
 
   return { publishConfig, workspaces };
+}
+
+function hasPnpm() {
+  return fs.existsSync('./pnpm-lock.yaml');
 }
 
 function resolveWorkspaces(workspaces) {
@@ -282,7 +285,7 @@ export default class WorkspacesPlugin extends Plugin {
      * that the lockfile be updated -- this is usually done by
      * running the install command for the package manager.
      */
-    if (await findUp('pnpm-lock.yaml')) {
+    if (hasPnpm()) {
       await this.exec(`pnpm install`);
     }
 
