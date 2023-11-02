@@ -47,7 +47,7 @@ function discoverWorkspaces() {
 }
 
 function hasPnpm() {
-  return fs.existsSync('./pnpm-lock.yaml');
+  return fs.existsSync('./pnpm-lock.yaml') || fs.existsSync(PNPM_WORKSPACE_PATH);
 }
 
 function resolveWorkspaces(workspaces) {
