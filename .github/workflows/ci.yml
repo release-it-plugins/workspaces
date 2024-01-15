@@ -34,7 +34,8 @@ jobs:
 
     strategy:
       matrix:
-        release-it-version: ['14.0.0', '14.1.0', '14.2.0', '15.2.0', '^15.0.0', '^16.0.0']
+        release-it-version:
+          ['14.0.0', '14.1.0', '14.2.0', '15.2.0', '^15.0.0', '^16.0.0', '^17.0.0']
 
     steps:
       - uses: actions/checkout@v3.0.2
