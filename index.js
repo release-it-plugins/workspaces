@@ -332,7 +332,7 @@ export default class WorkspacesPlugin extends Plugin {
     // tools that use this replace with a real version during the publish the process
     if (existingVersion.startsWith('workspace:')) {
       prefix = 'workspace:';
-      range = existingVersion.split(':')[1];
+      range = existingVersion.slice(prefix.length);
       suffix = range.length > 1 ? newVersion : '';
     }
 
