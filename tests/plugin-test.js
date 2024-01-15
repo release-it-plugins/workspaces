@@ -574,6 +574,33 @@ describe('@release-it-plugins/workspaces', () => {
       `);
     });
 
+    it('supports the workspace protocol as used in the glimmer-vm repo', async () => {
+      setupProject(['packages/@glimmer/*']);
+      setupWorkspace({ name: '@glimmer/interfaces', version: '1.0.0' });
+      setupWorkspace({
+        name: '@glimmer/runtime',
+        version: '1.0.0',
+        dependencies: { '@glimmer/interfaces': 'workspace:*' },
+      });
+
+      let plugin = buildPlugin();
+
+      await runTasks(plugin);
+
+      // dist was updated
+      expect(JSON.parse(dir.readText('packages/@glimmer/interfaces/package.json'))).toEqual({
+        license: 'MIT',
+        name: '@glimmer/interfaces',
+        version: '1.0.1',
+      });
+      expect(JSON.parse(dir.readText('packages/@glimmer/runtime/package.json'))).toEqual({
+        license: 'MIT',
+        name: '@glimmer/runtime',
+        version: '1.0.1',
+        dependencies: { '@glimmer/interfaces': 'workspace:*' },
+      });
+    });
+
     it('skips registry checks with skipChecks', async () => {
       let plugin = buildPlugin({ skipChecks: true });
 
@@ -1120,5 +1147,12 @@ describe('@release-it-plugins/workspaces', () => {
     updatesTo({ existing: '^1.0.0', new: '2.0.0-beta.1', expected: '^2.0.0-beta.1' });
     updatesTo({ existing: '^1.0.0-beta.1', new: '1.0.0-beta.2', expected: '^1.0.0-beta.2' });
     updatesTo({ existing: '^1.0.0-beta.1', new: '1.0.0', expected: '^1.0.0' });
+
+    updatesTo({ existing: 'workspace:^1.0.0', new: '2.0.0', expected: 'workspace:^2.0.0' });
+    updatesTo({ existing: 'workspace:~1.0.0', new: '2.0.0', expected: 'workspace:~2.0.0' });
+    updatesTo({ existing: 'workspace:1.0.0', new: '2.0.0', expected: 'workspace:2.0.0' });
+    updatesTo({ existing: 'workspace:^', new: '2.0.0', expected: 'workspace:^' });
+    updatesTo({ existing: 'workspace:~', new: '2.0.0', expected: 'workspace:~' });
+    updatesTo({ existing: 'workspace:*', new: '2.0.0', expected: 'workspace:*' });
   });
 });

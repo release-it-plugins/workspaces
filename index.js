@@ -37,13 +37,17 @@ async function rejectAfter(ms, error) {
 function discoverWorkspaces() {
   let { publishConfig, workspaces } = JSON.parse(fs.readFileSync(path.resolve(ROOT_MANIFEST_PATH)));
 
-  if (!workspaces && fs.existsSync(PNPM_WORKSPACE_PATH)) {
+  if (!workspaces && hasPnpm()) {
     ({ packages: workspaces } = YAML.parse(
       fs.readFileSync(path.resolve(PNPM_WORKSPACE_PATH), { encoding: 'utf-8' })
     ));
   }
 
   return { publishConfig, workspaces };
+}
+
+function hasPnpm() {
+  return fs.existsSync('./pnpm-lock.yaml') || fs.existsSync(PNPM_WORKSPACE_PATH);
 }
 
 function resolveWorkspaces(workspaces) {
@@ -275,6 +279,16 @@ export default class WorkspacesPlugin extends Plugin {
       }
     };
 
+    /**
+     * In workflows where publishing is handled on C.I.,
+     * and not be release-it, the environment will often require
+     * that the lockfile be updated -- this is usually done by
+     * running the install command for the package manager.
+     */
+    if (hasPnpm()) {
+      await this.exec(`pnpm install`);
+    }
+
     return this.spinner.show({ task, label: 'npm version' });
   }
 
@@ -309,14 +323,29 @@ export default class WorkspacesPlugin extends Plugin {
   }
 
   _buildReplacementDepencencyVersion(existingVersion, newVersion) {
-    let firstChar = existingVersion[0];
+    let prefix = '';
+    let firstChar = '';
+    let range = existingVersion;
+    let suffix = newVersion;
 
-    // preserve existing floating constraint
-    if (['^', '~'].includes(firstChar)) {
-      return `${firstChar}${newVersion}`;
+    // preserve workspace protocol prefix,
+    // tools that use this replace with a real version during the publish the process
+    if (existingVersion.startsWith('workspace:')) {
+      prefix = 'workspace:';
+      range = existingVersion.slice(prefix.length);
+      suffix = range.length > 1 ? newVersion : '';
     }
 
-    return newVersion;
+    // preserve existing floating constraint
+    if (['^', '~'].includes(range[0])) {
+      firstChar = range[0];
+    }
+
+    if ('*' === range) {
+      return `${prefix}*`;
+    }
+
+    return `${prefix}${firstChar}${suffix}`;
   }
 
   _updateDependencies(pkgInfo, newVersion) {

@@ -19,6 +19,7 @@
   "scripts": {
     "lint:js": "eslint .",
     "test": "npm-run-all lint:js test:vitest",
+    "test:watch": "vitest --no-threads",
     "test:vitest": "vitest run --no-threads"
   },
   "husky": {
