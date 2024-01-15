@@ -2,6 +2,20 @@
 
 
 
+
+## v4.1.0 (2024-01-15)
+
+#### :rocket: Enhancement
+* [#114](https://github.com/release-it-plugins/workspaces/pull/114) Add support for `release-it@17.0.0` ([@juancarlosjr97](https://github.com/juancarlosjr97))
+
+#### :house: Internal
+* [#108](https://github.com/release-it-plugins/workspaces/pull/108) Updating actions to use volta action ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 2
+- Juan Carlos Blanco Delgado ([@juancarlosjr97](https://github.com/juancarlosjr97))
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
 ## v4.0.0 (2023-07-11)
 
 #### :boom: Breaking Change
