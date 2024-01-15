@@ -3,6 +3,16 @@
 
 
 
+
+## v4.2.0 (2024-01-15)
+
+#### :bug: Bug Fix
+* [#110](https://github.com/release-it-plugins/workspaces/pull/110) Ensure `workspace:` prefix is updated correctly when using PNPM. ([@NullVoxPopuli](https://github.com/NullVoxPopuli))
+
+#### Committers: 1
+- [@NullVoxPopuli](https://github.com/NullVoxPopuli)
+
+
 ## v4.1.0 (2024-01-15)
 
 #### :rocket: Enhancement
