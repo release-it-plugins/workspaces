@@ -39,7 +39,7 @@
     "yaml": "^2.1.1"
   },
   "devDependencies": {
-    "@release-it-plugins/lerna-changelog": "^6.0.0",
+    "@release-it-plugins/lerna-changelog": "^6.1.0",
     "broccoli-test-helper": "^2.0.0",
     "eslint": "^8.19.0",
     "eslint-config-prettier": "^8.5.0",
