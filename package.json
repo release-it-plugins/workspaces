@@ -65,11 +65,11 @@
     }
   },
   "engines": {
-    "node": ">= 16"
+    "node": ">= 20"
   },
   "volta": {
-    "node": "16.20.1",
-    "npm": "9.8.0"
+    "node": "22.0.0",
+    "npm": "10.9.2"
   },
   "publishConfig": {
     "access": "public",
