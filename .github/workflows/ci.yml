@@ -16,10 +16,10 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [16.x, 18.x, 20.x, 22.x]
 
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v4
       - uses: volta-cli/action@v4
         with:
           node-version: ${{ matrix.node-version }}
@@ -35,10 +35,10 @@ jobs:
     strategy:
       matrix:
         release-it-version:
-          ['14.0.0', '14.1.0', '14.2.0', '15.2.0', '^15.0.0', '^16.0.0', '^17.0.0']
+          ['14.0.0', '14.1.0', '14.2.0', '15.2.0', '^15.0.0', '^16.0.0', '^17.0.0', '^18.0.0']
 
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v4
       - uses: volta-cli/action@v4
       - name: install dependencies
         run: npm ci
