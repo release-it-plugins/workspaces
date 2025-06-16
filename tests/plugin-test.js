@@ -35,6 +35,12 @@ function buildPlugin(config = {}, _Plugin = TestPlugin) {
       messages: args,
     });
   };
+  plugin.log.exec = (...args) => {
+    plugin.operations.push({
+      operationType: 'log.exec',
+      messages: args,
+    });
+  };
 
   plugin.commandResponses = commandResponses;
   plugin.promptResponses = promptResponses;
@@ -226,6 +232,42 @@ describe('@release-it-plugins/workspaces', () => {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
+          },
+          {
+            "messages": [
+              "Processing packages/bar/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing packages/foo/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for ./package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
           },
           {
             "command": "npm publish ./packages/bar --tag latest",
@@ -420,6 +462,42 @@ describe('@release-it-plugins/workspaces', () => {
             "options": undefined,
           },
           {
+            "messages": [
+              "Processing packages/@scope-name/bar/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing packages/@scope-name/foo/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for ./package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
             "command": "npm publish ./packages/@scope-name/bar --tag latest",
             "operationType": "command",
             "options": {
@@ -498,6 +576,42 @@ describe('@release-it-plugins/workspaces', () => {
             "options": undefined,
           },
           {
+            "messages": [
+              "Processing dist/packages/qux/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing dist/packages/zorp/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for ./package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
             "command": "npm publish ./dist/packages/qux --tag latest",
             "operationType": "command",
             "options": {
@@ -543,6 +657,42 @@ describe('@release-it-plugins/workspaces', () => {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
+          },
+          {
+            "messages": [
+              "Processing packages/bar/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing packages/foo/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for ./package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
           },
           {
             "command": "npm publish ./packages/bar --tag foo",
@@ -609,6 +759,42 @@ describe('@release-it-plugins/workspaces', () => {
       expect(plugin.operations).toMatchInlineSnapshot(`
         [
           {
+            "messages": [
+              "Processing packages/bar/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing packages/foo/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for ./package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
             "command": "npm publish ./packages/bar --tag latest",
             "operationType": "command",
             "options": {
@@ -655,6 +841,42 @@ describe('@release-it-plugins/workspaces', () => {
             "command": "npm whoami --registry http://my-custom-registry",
             "operationType": "command",
             "options": undefined,
+          },
+          {
+            "messages": [
+              "Processing packages/bar/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing packages/foo/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for ./package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
           },
           {
             "command": "npm publish ./packages/bar --tag latest",
@@ -707,6 +929,42 @@ describe('@release-it-plugins/workspaces', () => {
             "options": undefined,
           },
           {
+            "messages": [
+              "Processing packages/bar/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing packages/foo/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for ./package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
             "command": "npm publish ./packages/bar --tag latest",
             "operationType": "command",
             "options": {
@@ -754,6 +1012,42 @@ describe('@release-it-plugins/workspaces', () => {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
+          },
+          {
+            "messages": [
+              "Processing packages/bar/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.0-beta.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing packages/foo/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.0-beta.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for ./package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.0-beta.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
           },
           {
             "command": "npm publish ./packages/bar --tag beta",
@@ -816,6 +1110,42 @@ describe('@release-it-plugins/workspaces', () => {
             "options": undefined,
           },
           {
+            "messages": [
+              "Processing packages/bar/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing packages/foo/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for ./package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
             "command": "npm publish ./packages/bar --tag latest",
             "operationType": "command",
             "options": {
@@ -847,6 +1177,85 @@ describe('@release-it-plugins/workspaces', () => {
   });
 
   describe('acceptance', () => {
+    it('runs pnpm install to update lockfile *after* updating versions', async () => {
+      setupPnpmWorkspace(['packages/*']);
+
+      setupWorkspace({ name: 'bar' });
+      setupWorkspace({ name: 'foo', private: true });
+
+      let plugin = buildPlugin();
+      await runTasks(plugin);
+
+      expect(plugin.operations).toMatchInlineSnapshot(`
+        [
+          {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "operationType": "command",
+            "options": undefined,
+          },
+          {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "operationType": "command",
+            "options": undefined,
+          },
+          {
+            "messages": [
+              "Processing packages/bar/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing packages/foo/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for ./package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "command": "pnpm install",
+            "operationType": "command",
+            "options": undefined,
+          },
+          {
+            "command": "npm publish ./packages/bar --tag latest",
+            "operationType": "command",
+            "options": {
+              "write": false,
+            },
+          },
+          {
+            "messages": [
+              "🔗 https://www.npmjs.com/package/bar",
+            ],
+            "operationType": "log",
+          },
+        ]
+      `);
+    });
+
     it('@glimmerjs/glimmer-vm style setup', async () => {
       setupProject(['packages/@glimmer/*']);
       setupWorkspace({ name: '@glimmer/interfaces', version: '1.0.0' });
@@ -921,6 +1330,78 @@ describe('@release-it-plugins/workspaces', () => {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
+          },
+          {
+            "messages": [
+              "Processing dist/@glimmer/interfaces/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 1.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing dist/@glimmer/runtime/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 1.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	dependencies: \`@glimmer/interfaces\` -> 1.0.1 (from 1.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.dependencyUpdates for packages/@glimmer/interfaces/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.dependencyUpdates for packages/@glimmer/runtime/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	dependencies: \`@glimmer/interfaces\` -> 1.0.1 (from 1.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for packages/@glimmer/interfaces/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 1.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for packages/@glimmer/runtime/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 1.0.0)",
+            ],
+            "operationType": "log.exec",
           },
           {
             "command": "npm publish ./dist/@glimmer/interfaces --tag latest",

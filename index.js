@@ -277,17 +277,17 @@ export default class WorkspacesPlugin extends Plugin {
           }
         });
       }
-    };
 
-    /**
-     * In workflows where publishing is handled on C.I.,
-     * and not be release-it, the environment will often require
-     * that the lockfile be updated -- this is usually done by
-     * running the install command for the package manager.
-     */
-    if (hasPnpm()) {
-      await this.exec(`pnpm install`);
-    }
+      /**
+       * In workflows where publishing is handled on C.I.,
+       * and not be release-it, the environment will often require
+       * that the lockfile be updated -- this is usually done by
+       * running the install command for the package manager.
+       */
+      if (hasPnpm()) {
+        await this.exec(`pnpm install`);
+      }
+    };
 
     return this.spinner.show({ task, label: 'npm version' });
   }
