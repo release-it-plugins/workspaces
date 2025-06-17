@@ -199,7 +199,10 @@ export default class WorkspacesPlugin extends Plugin {
   }
 
   beforeBump() {
-    // TODO: implement printing of workspaces found
+    const workspaces = this.getWorkspaces();
+    const messages = ['Workspaces to process:', ...workspaces.map((w) => `  ${w.relativeRoot}`)];
+
+    this.log.log(messages.join('\n'));
   }
 
   async bump(version) {
