@@ -82,6 +82,21 @@ interface ReleaseItWorkSpacesConfiguration {
   publish?: boolean;
 
   /**
+    Custom command used to publish each workspace. Supports
+    [`lodash`-style templates](https://lodash.com/docs/#template) with the following context:
+
+    - `pathToWorkspace`: relative path to the workspace
+    - `tag`: the npm dist-tag being published
+    - `access`: access level (public/private)
+    - `otp`: one-time password for 2FA
+    - `dryRun`: boolean indicating a dry run
+
+    Defaults to a command appropriate for the detected package manager
+    (`npm` or `pnpm`).
+  */
+  publishCommand?: string;
+
+  /**
     Specifies which `dist-tag` to use when publishing.
 
     Defaults to `latest` for non-prerelease and the prelease type for
@@ -98,7 +113,6 @@ interface ReleaseItWorkSpacesConfiguration {
   workspaces?: string[];
 
   additionalManifests?: {
-
     /**
       An array of `package.json` files that should have their `version`
       property updated to the newly released version.
@@ -113,7 +127,7 @@ interface ReleaseItWorkSpacesConfiguration {
       updated to the newly published version.
     */
     dependencyUpdates?: string[];
-  }
+  };
 }
 ```
 
@@ -158,6 +172,43 @@ comes in:
 With this configuration, the `package.json` files in your workspaces would be
 updated with the new version information but the packages would not be
 published.
+
+### publishCommand
+
+Customize the command used to publish each workspace. The command string may
+use [`lodash`-style templates](https://lodash.com/docs/#template). The following variables are available:
+
+- `pathToWorkspace`
+- `tag`
+- `access`
+- `otp`
+- `dryRun`
+
+When omitted, a default command is chosen based on the detected package manager.
+
+Default `npm` command:
+
+```
+npm publish <%= pathToWorkspace %> --tag <%= tag %><%= access ? ' --access ' + access : '' %><%= otp ? ' --otp ' + otp : '' %><%= dryRun ? ' --dry-run' : '' %>
+```
+
+Default `pnpm` command:
+
+```
+pnpm publish <%= pathToWorkspace %> --tag <%= tag %><%= access ? ' --access ' + access : '' %><%= otp ? ' --otp ' + otp : '' %><%= dryRun ? ' --dry-run' : '' %>
+```
+
+```json
+{
+  "release-it": {
+    "plugins": {
+      "@release-it-plugins/workspaces": {
+        "publishCommand": "pnpm publish <%= pathToWorkspace %> --tag <%= tag %>"
+      }
+    }
+  }
+}
+```
 
 ### distTag
 
