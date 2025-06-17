@@ -4,6 +4,16 @@
 
 
 
+
+## v4.2.1 (2025-06-17)
+
+#### :bug: Bug Fix
+* [#120](https://github.com/release-it-plugins/workspaces/pull/120) fix(pnpm): Ensure `pnpm install` is ran *after* updating versions ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v4.2.0 (2024-01-15)
 
 #### :bug: Bug Fix
