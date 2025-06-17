@@ -216,6 +216,16 @@ describe('@release-it-plugins/workspaces', () => {
       setupWorkspace({ name: 'bar' });
     });
 
+    it('logs workspaces before bump', async () => {
+      let plugin = buildPlugin();
+
+      await runTasks(plugin);
+
+      expect(plugin.logs[0][0]).toMatchInlineSnapshot(`
+        "Workspaces to process:\n  packages/bar\n  packages/foo"
+      `);
+    });
+
     it('works', async () => {
       let plugin = buildPlugin();
 
@@ -232,6 +242,14 @@ describe('@release-it-plugins/workspaces', () => {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
+          },
+          {
+            "messages": [
+              "Workspaces to process:
+          packages/bar
+          packages/foo",
+            ],
+            "operationType": "log",
           },
           {
             "messages": [
@@ -463,6 +481,14 @@ describe('@release-it-plugins/workspaces', () => {
           },
           {
             "messages": [
+              "Workspaces to process:
+          packages/@scope-name/bar
+          packages/@scope-name/foo",
+            ],
+            "operationType": "log",
+          },
+          {
+            "messages": [
               "Processing packages/@scope-name/bar/package.json:",
             ],
             "operationType": "log.exec",
@@ -577,6 +603,14 @@ describe('@release-it-plugins/workspaces', () => {
           },
           {
             "messages": [
+              "Workspaces to process:
+          dist/packages/qux
+          dist/packages/zorp",
+            ],
+            "operationType": "log",
+          },
+          {
+            "messages": [
               "Processing dist/packages/qux/package.json:",
             ],
             "operationType": "log.exec",
@@ -657,6 +691,14 @@ describe('@release-it-plugins/workspaces', () => {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
+          },
+          {
+            "messages": [
+              "Workspaces to process:
+          packages/bar
+          packages/foo",
+            ],
+            "operationType": "log",
           },
           {
             "messages": [
@@ -760,6 +802,14 @@ describe('@release-it-plugins/workspaces', () => {
         [
           {
             "messages": [
+              "Workspaces to process:
+          packages/bar
+          packages/foo",
+            ],
+            "operationType": "log",
+          },
+          {
+            "messages": [
               "Processing packages/bar/package.json:",
             ],
             "operationType": "log.exec",
@@ -841,6 +891,14 @@ describe('@release-it-plugins/workspaces', () => {
             "command": "npm whoami --registry http://my-custom-registry",
             "operationType": "command",
             "options": undefined,
+          },
+          {
+            "messages": [
+              "Workspaces to process:
+          packages/bar
+          packages/foo",
+            ],
+            "operationType": "log",
           },
           {
             "messages": [
@@ -930,6 +988,14 @@ describe('@release-it-plugins/workspaces', () => {
           },
           {
             "messages": [
+              "Workspaces to process:
+          packages/bar
+          packages/foo",
+            ],
+            "operationType": "log",
+          },
+          {
+            "messages": [
               "Processing packages/bar/package.json:",
             ],
             "operationType": "log.exec",
@@ -1012,6 +1078,14 @@ describe('@release-it-plugins/workspaces', () => {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
+          },
+          {
+            "messages": [
+              "Workspaces to process:
+          packages/bar
+          packages/foo",
+            ],
+            "operationType": "log",
           },
           {
             "messages": [
@@ -1111,6 +1185,14 @@ describe('@release-it-plugins/workspaces', () => {
           },
           {
             "messages": [
+              "Workspaces to process:
+          packages/bar
+          packages/foo",
+            ],
+            "operationType": "log",
+          },
+          {
+            "messages": [
               "Processing packages/bar/package.json:",
             ],
             "operationType": "log.exec",
@@ -1197,6 +1279,14 @@ describe('@release-it-plugins/workspaces', () => {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
+          },
+          {
+            "messages": [
+              "Workspaces to process:
+          packages/bar
+          packages/foo",
+            ],
+            "operationType": "log",
           },
           {
             "messages": [
@@ -1330,6 +1420,14 @@ describe('@release-it-plugins/workspaces', () => {
             "command": "npm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
+          },
+          {
+            "messages": [
+              "Workspaces to process:
+          dist/@glimmer/interfaces
+          dist/@glimmer/runtime",
+            ],
+            "operationType": "log",
           },
           {
             "messages": [
