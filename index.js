@@ -23,6 +23,10 @@ const DEFAULT_TAG = 'latest';
 const NPM_BASE_URL = 'https://www.npmjs.com';
 const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org';
 const DETECT_TRAILING_WHITESPACE = /\s+$/;
+const DEFAULT_NPM_PUBLISH_COMMAND =
+  'npm publish <%= pathToWorkspace %> --tag <%= tag %><%= access ? " --access " + access : "" %><%= otp ? " --otp " + otp : "" %><%= dryRun ? " --dry-run" : "" %>';
+const DEFAULT_PNPM_PUBLISH_COMMAND =
+  'pnpm publish <%= pathToWorkspace %> --tag <%= tag %><%= access ? " --access " + access : "" %><%= otp ? " --otp " + otp : "" %><%= dryRun ? " --dry-run" : "" %>';
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -449,11 +453,26 @@ export default class WorkspacesPlugin extends Plugin {
     return registries[0] || NPM_DEFAULT_REGISTRY;
   }
 
+  isPNPM() {
+    return hasPnpm();
+  }
+
   async publish({ tag, workspaceInfo, otp, access } = {}) {
     const isScoped = workspaceInfo.name.startsWith('@');
-    const otpArg = otp.value ? ` --otp ${otp.value}` : '';
-    const accessArg = access ? ` --access ${access}` : '';
-    const dryRunArg = this.config.isDryRun ? ' --dry-run' : '';
+
+    const context = {
+      pathToWorkspace: `./${workspaceInfo.relativeRoot}`,
+      tag,
+      access,
+      otp: otp.value,
+      dryRun: this.config.isDryRun,
+    };
+
+    let publishCommand = this.getContext().publishCommand;
+
+    if (!publishCommand) {
+      publishCommand = this.isPNPM() ? DEFAULT_PNPM_PUBLISH_COMMAND : DEFAULT_NPM_PUBLISH_COMMAND;
+    }
 
     if (workspaceInfo.isPrivate) {
       this.debug(`${workspaceInfo.name}: Skip publish (package is private)`);
@@ -461,12 +480,7 @@ export default class WorkspacesPlugin extends Plugin {
     }
 
     try {
-      await this.exec(
-        `npm publish ./${workspaceInfo.relativeRoot} --tag ${tag}${accessArg}${otpArg}${dryRunArg}`,
-        {
-          options,
-        }
-      );
+      await this.exec(publishCommand, { options, context });
 
       workspaceInfo.isReleased = true;
     } catch (err) {

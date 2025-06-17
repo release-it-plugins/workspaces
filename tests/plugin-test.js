@@ -874,6 +874,100 @@ describe('@release-it-plugins/workspaces', () => {
       `);
     });
 
+    it('uses custom publish command', async () => {
+      setupProject(['packages/*']);
+      let plugin = buildPlugin({
+        publishCommand: 'pnpm publish <%= pathToWorkspace %> --tag <%= tag %>',
+      });
+
+      await runTasks(plugin);
+
+      expect(plugin.operations).toMatchInlineSnapshot(`
+        [
+          {
+            "command": "npm ping --registry https://registry.npmjs.org",
+            "operationType": "command",
+            "options": undefined,
+          },
+          {
+            "command": "npm whoami --registry https://registry.npmjs.org",
+            "operationType": "command",
+            "options": undefined,
+          },
+          {
+            "messages": [
+              "Workspaces to process:
+          packages/bar
+          packages/foo",
+            ],
+            "operationType": "log",
+          },
+          {
+            "messages": [
+              "Processing packages/bar/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing packages/foo/package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "Processing additionManifest.versionUpdates for ./package.json:",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "messages": [
+              "	version: -> 1.0.1 (from 0.0.0)",
+            ],
+            "operationType": "log.exec",
+          },
+          {
+            "command": "pnpm publish ./packages/bar --tag latest",
+            "operationType": "command",
+            "options": {
+              "write": false,
+            },
+          },
+          {
+            "command": "pnpm publish ./packages/foo --tag latest",
+            "operationType": "command",
+            "options": {
+              "write": false,
+            },
+          },
+          {
+            "messages": [
+              "🔗 https://www.npmjs.com/package/bar",
+            ],
+            "operationType": "log",
+          },
+          {
+            "messages": [
+              "🔗 https://www.npmjs.com/package/foo",
+            ],
+            "operationType": "log",
+          },
+        ]
+      `);
+    });
+
     it('uses custom registry', async () => {
       setupProject(['packages/*'], { publishConfig: { registry: 'http://my-custom-registry' } });
       let plugin = buildPlugin();
@@ -1330,7 +1424,7 @@ describe('@release-it-plugins/workspaces', () => {
             "options": undefined,
           },
           {
-            "command": "npm publish ./packages/bar --tag latest",
+            "command": "pnpm publish ./packages/bar --tag latest",
             "operationType": "command",
             "options": {
               "write": false,
