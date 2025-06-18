@@ -5,6 +5,23 @@
 
 
 
+
+## v5.0.0 (2025-06-18)
+
+#### :boom: Breaking Change
+* [#124](https://github.com/release-it-plugins/workspaces/pull/124) Support release-it 17, 18, and 19 (drop support for 14, 15, and 16). ([@rwjblue](https://github.com/rwjblue))
+* [#119](https://github.com/release-it-plugins/workspaces/pull/119) Drop support for Node < 20 ([@rwjblue](https://github.com/rwjblue))
+
+#### :rocket: Enhancement
+* [#122](https://github.com/release-it-plugins/workspaces/pull/122) Add workspace logging before bump ([@rwjblue](https://github.com/rwjblue))
+
+#### :house: Internal
+* [#121](https://github.com/release-it-plugins/workspaces/pull/121) Update NPM dependencies ([@rwjblue](https://github.com/rwjblue))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+
+
 ## v4.2.1 (2025-06-17)
 
 #### :bug: Bug Fix
