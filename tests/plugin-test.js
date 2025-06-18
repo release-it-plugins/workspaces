@@ -19,13 +19,13 @@ class TestPlugin extends Plugin {
   }
 }
 
-function buildPlugin(config = {}, _Plugin = TestPlugin) {
+async function buildPlugin(config = {}, _Plugin = TestPlugin) {
   const container = {};
   const commandResponses = {};
   const promptResponses = {};
 
   const options = { [namespace]: config };
-  const plugin = factory(_Plugin, { container, namespace, options });
+  const plugin = await factory(_Plugin, { container, namespace, options });
 
   plugin.log.log = (...args) => {
     plugin.logs.push(args);
@@ -217,7 +217,7 @@ describe('@release-it-plugins/workspaces', () => {
     });
 
     it('logs workspaces before bump', async () => {
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       await runTasks(plugin);
 
@@ -227,7 +227,7 @@ describe('@release-it-plugins/workspaces', () => {
     });
 
     it('works', async () => {
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       await runTasks(plugin);
 
@@ -342,7 +342,7 @@ describe('@release-it-plugins/workspaces', () => {
         },
       });
 
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       await runTasks(plugin);
 
@@ -382,7 +382,7 @@ describe('@release-it-plugins/workspaces', () => {
         },
       });
 
-      let plugin = buildPlugin({
+      let plugin = await buildPlugin({
         additionalManifests: { versionUpdates: ['dist/packages/*/package.json'] },
       });
 
@@ -426,7 +426,7 @@ describe('@release-it-plugins/workspaces', () => {
         },
       });
 
-      let plugin = buildPlugin({
+      let plugin = await buildPlugin({
         additionalManifests: { dependencyUpdates: ['blueprints/*/files/package.json'] },
       });
 
@@ -451,7 +451,7 @@ describe('@release-it-plugins/workspaces', () => {
       setupWorkspace({ name: '@scope-name/bar' });
       setupWorkspace({ name: '@scope-name/foo' });
 
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       plugin.commandResponses['npm publish ./packages/@scope-name/bar --tag latest'] = [
         {
@@ -585,7 +585,7 @@ describe('@release-it-plugins/workspaces', () => {
       setupDistWorkspace({ name: 'qux' });
       setupDistWorkspace({ name: 'zorp' });
 
-      let plugin = buildPlugin({ workspaces: ['dist/packages/*'] });
+      let plugin = await buildPlugin({ workspaces: ['dist/packages/*'] });
 
       await runTasks(plugin);
 
@@ -676,7 +676,7 @@ describe('@release-it-plugins/workspaces', () => {
     });
 
     it('uses specified distTag', async () => {
-      let plugin = buildPlugin({ distTag: 'foo' });
+      let plugin = await buildPlugin({ distTag: 'foo' });
 
       await runTasks(plugin);
 
@@ -775,7 +775,7 @@ describe('@release-it-plugins/workspaces', () => {
         dependencies: { '@glimmer/interfaces': 'workspace:*' },
       });
 
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       await runTasks(plugin);
 
@@ -794,7 +794,7 @@ describe('@release-it-plugins/workspaces', () => {
     });
 
     it('skips registry checks with skipChecks', async () => {
-      let plugin = buildPlugin({ skipChecks: true });
+      let plugin = await buildPlugin({ skipChecks: true });
 
       await runTasks(plugin);
 
@@ -876,7 +876,7 @@ describe('@release-it-plugins/workspaces', () => {
 
     it('uses custom publish command', async () => {
       setupProject(['packages/*']);
-      let plugin = buildPlugin({
+      let plugin = await buildPlugin({
         publishCommand: 'pnpm publish <%= pathToWorkspace %> --tag <%= tag %>',
       });
 
@@ -970,7 +970,7 @@ describe('@release-it-plugins/workspaces', () => {
 
     it('uses custom registry', async () => {
       setupProject(['packages/*'], { publishConfig: { registry: 'http://my-custom-registry' } });
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       await runTasks(plugin);
 
@@ -1064,7 +1064,7 @@ describe('@release-it-plugins/workspaces', () => {
       setupProject(['packages/*'], {
         publishConfig: { ['@scope:registry']: 'http://my-custom-registry' },
       });
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       await runTasks(plugin);
 
@@ -1155,7 +1155,7 @@ describe('@release-it-plugins/workspaces', () => {
     });
 
     it('uses prerelease npm dist-tag', async () => {
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       plugin.getIncrementedVersion = () => '1.0.0-beta.1';
 
@@ -1248,7 +1248,7 @@ describe('@release-it-plugins/workspaces', () => {
     });
 
     it('when publishing rejects requiring a one time password', async () => {
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       plugin.commandResponses['packages/bar'] = {
         'npm publish . --tag latest': [
@@ -1359,7 +1359,7 @@ describe('@release-it-plugins/workspaces', () => {
       setupWorkspace({ name: 'bar' });
       setupWorkspace({ name: 'foo', private: true });
 
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
       await runTasks(plugin);
 
       expect(plugin.operations).toMatchInlineSnapshot(`
@@ -1469,7 +1469,7 @@ describe('@release-it-plugins/workspaces', () => {
         },
       });
 
-      let plugin = buildPlugin({
+      let plugin = await buildPlugin({
         workspaces: ['dist/@glimmer/*'],
         additionalManifests: {
           dependencyUpdates: ['packages/*/*/package.json'],
@@ -1627,10 +1627,10 @@ describe('@release-it-plugins/workspaces', () => {
   });
 
   describe('format publish output', () => {
-    it('correctly formats publish message for all packages', () => {
+    it('correctly formats publish message for all packages', async () => {
       setupProject(['packages/*']);
 
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       expect(plugin._formatPublishMessage('latest', ['@foo/bar', '@foo/baz', '@foo/blarg']))
         .toMatchInlineSnapshot(`
@@ -1669,7 +1669,7 @@ describe('@release-it-plugins/workspaces', () => {
       setupWorkspace({ name: 'bar' });
       setupWorkspace({ name: 'foo', private: true });
 
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       let workspaces1 = await plugin.getWorkspaces();
       let workspaces2 = await plugin.getWorkspaces();
@@ -1683,7 +1683,7 @@ describe('@release-it-plugins/workspaces', () => {
       setupWorkspace({ name: 'bar' });
       setupWorkspace({ name: 'foo', private: true });
 
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       let workspaces1 = await plugin.getWorkspaces();
       let workspaces2 = await plugin.getWorkspaces();
@@ -1697,7 +1697,7 @@ describe('@release-it-plugins/workspaces', () => {
       setupWorkspace({ name: 'bar' });
       setupWorkspace({ name: 'foo', private: true });
 
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       let workspaces = await plugin.getWorkspaces();
 
@@ -1710,7 +1710,7 @@ describe('@release-it-plugins/workspaces', () => {
       setupWorkspace({ name: 'foo' });
       setupWorkspace({ name: 'bar' });
 
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       let workspaces = await plugin.getWorkspaces();
 
@@ -1723,7 +1723,7 @@ describe('@release-it-plugins/workspaces', () => {
       setupWorkspace({ name: 'foo' });
       setupWorkspace({ name: 'bar' });
 
-      let plugin = buildPlugin();
+      let plugin = await buildPlugin();
 
       let workspaces = await plugin.getWorkspaces();
 
@@ -1749,7 +1749,7 @@ describe('@release-it-plugins/workspaces', () => {
           },
         });
 
-        let plugin = buildPlugin();
+        let plugin = await buildPlugin();
 
         let [fooWorkspaceInfo] = await plugin.getWorkspaces();
 
@@ -1784,7 +1784,7 @@ describe('@release-it-plugins/workspaces', () => {
           },
         });
 
-        let plugin = buildPlugin();
+        let plugin = await buildPlugin();
 
         let [fooWorkspaceInfo] = await plugin.getWorkspaces();
 
@@ -1805,10 +1805,10 @@ describe('@release-it-plugins/workspaces', () => {
 
   describe('_buildReplacementDepencencyVersion', () => {
     function updatesTo({ existing, new: newVersion, expected }) {
-      it(`updates ${existing} to ${newVersion}`, () => {
+      it(`updates ${existing} to ${newVersion}`, async () => {
         setupProject(['packages/*']);
 
-        let plugin = buildPlugin();
+        let plugin = await buildPlugin();
 
         expect(plugin._buildReplacementDepencencyVersion(existing, newVersion)).toEqual(expected);
       });
