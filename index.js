@@ -157,7 +157,7 @@ export default class WorkspacesPlugin extends Plugin {
       },
       otp: {
         type: 'input',
-        message: () => `Please enter OTP for npm:`,
+        message: () => `Please enter OTP for ${this.isPNPM() ? 'pnpm' : 'npm'}:`,
       },
       'publish-as-public': {
         type: 'confirm',
@@ -195,7 +195,10 @@ export default class WorkspacesPlugin extends Plugin {
     }
 
     if (!isAuthenticated) {
-      throw new Error('Not authenticated with npm. Please `npm login` and try again.');
+      const program = this.isPNPM() ? 'pnpm' : 'npm';
+      throw new Error(
+        `Not authenticated with ${program}. Please \`${program} login\` and try again.`
+      );
     }
   }
 
@@ -399,14 +402,15 @@ export default class WorkspacesPlugin extends Plugin {
 
   async isRegistryUp() {
     const registry = this.getRegistry();
+    const program = this.isPNPM() ? 'pnpm' : 'npm';
 
     try {
-      await this.exec(`npm ping --registry ${registry}`);
+      await this.exec(`${program} ping --registry ${registry}`);
 
       return true;
     } catch (error) {
       if (/code E40[04]|404.*(ping not found|No content for path)/.test(error)) {
-        this.log.warn('Ignoring unsupported `npm ping` command response.');
+        this.log.warn(`Ignoring unsupported \`${program} ping\` command response.`);
         return true;
       }
       return false;
@@ -415,15 +419,16 @@ export default class WorkspacesPlugin extends Plugin {
 
   async isAuthenticated() {
     const registry = this.getRegistry();
+    const program = this.isPNPM() ? 'pnpm' : 'npm';
 
     try {
-      await this.exec(`npm whoami --registry ${registry}`);
+      await this.exec(`${program} whoami --registry ${registry}`);
       return true;
     } catch (error) {
       this.debug(error);
 
       if (/code E40[04]/.test(error)) {
-        this.log.warn('Ignoring unsupported `npm whoami` command response.');
+        this.log.warn(`Ignoring unsupported \`${program} whoami\` command response.`);
         return true;
       }
 

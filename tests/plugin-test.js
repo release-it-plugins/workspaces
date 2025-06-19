@@ -331,12 +331,12 @@ describe('@release-it-plugins/workspaces', () => {
       expect(plugin.operations).toMatchInlineSnapshot(`
         [
           {
-            "command": "npm ping --registry https://registry.npmjs.org",
+            "command": "pnpm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
           {
-            "command": "npm whoami --registry https://registry.npmjs.org",
+            "command": "pnpm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
@@ -1406,12 +1406,12 @@ describe('@release-it-plugins/workspaces', () => {
       expect(plugin.operations).toMatchInlineSnapshot(`
         [
           {
-            "command": "npm ping --registry https://registry.npmjs.org",
+            "command": "pnpm ping --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
           {
-            "command": "npm whoami --registry https://registry.npmjs.org",
+            "command": "pnpm whoami --registry https://registry.npmjs.org",
             "operationType": "command",
             "options": undefined,
           },
