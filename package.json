@@ -33,6 +33,7 @@
   "dependencies": {
     "detect-indent": "^6.1.0",
     "detect-newline": "^3.1.0",
+    "execa": "^8.0.1",
     "semver": "^7.7.2",
     "url-join": "^4.0.1",
     "validate-peer-dependencies": "^1.2.0",

@@ -9,6 +9,7 @@ import detectIndent from 'detect-indent';
 import { Plugin } from 'release-it';
 import validatePeerDependencies from 'validate-peer-dependencies';
 import YAML from 'yaml';
+import { execaCommand } from 'execa';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,10 +24,6 @@ const DEFAULT_TAG = 'latest';
 const NPM_BASE_URL = 'https://www.npmjs.com';
 const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org';
 const DETECT_TRAILING_WHITESPACE = /\s+$/;
-const DEFAULT_NPM_PUBLISH_COMMAND =
-  'npm publish <%= pathToWorkspace %> --tag <%= tag %><%= access ? " --access " + access : "" %><%= otp ? " --otp " + otp : "" %><%= dryRun ? " --dry-run" : "" %>';
-const DEFAULT_PNPM_PUBLISH_COMMAND =
-  'pnpm publish <%= pathToWorkspace %> --tag <%= tag %><%= access ? " --access " + access : "" %><%= otp ? " --otp " + otp : "" %><%= dryRun ? " --dry-run" : "" %>';
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -460,19 +457,13 @@ export default class WorkspacesPlugin extends Plugin {
   async publish({ tag, workspaceInfo, otp, access } = {}) {
     const isScoped = workspaceInfo.name.startsWith('@');
 
-    const context = {
-      pathToWorkspace: `./${workspaceInfo.relativeRoot}`,
-      tag,
-      access,
-      otp: otp.value,
-      dryRun: this.config.isDryRun,
-    };
+    const pathToWorkspace = `./${workspaceInfo.relativeRoot}`;
+    const publishCommand = this.getContext().publishCommand;
 
-    let publishCommand = this.getContext().publishCommand;
-
-    if (!publishCommand) {
-      publishCommand = this.isPNPM() ? DEFAULT_PNPM_PUBLISH_COMMAND : DEFAULT_NPM_PUBLISH_COMMAND;
-    }
+    const args = [pathToWorkspace, '--tag', tag];
+    if (access) args.push('--access', access);
+    if (otp.value) args.push('--otp', otp.value);
+    if (this.config.isDryRun) args.push('--dry-run');
 
     if (workspaceInfo.isPrivate) {
       this.debug(`${workspaceInfo.name}: Skip publish (package is private)`);
@@ -480,7 +471,21 @@ export default class WorkspacesPlugin extends Plugin {
     }
 
     try {
-      await this.exec(publishCommand, { options, context });
+      if (!publishCommand) {
+        const program = this.isPNPM() ? 'pnpm' : 'npm';
+        const command = `${program} publish ${args.join(' ')}`;
+        await this.exec(command, { options });
+      } else {
+        const env = {
+          RELEASE_IT_WORKSPACES_PATH_TO_WORKSPACE: pathToWorkspace,
+          RELEASE_IT_WORKSPACES_TAG: tag ?? '',
+          RELEASE_IT_WORKSPACES_ACCESS: access ?? '',
+          RELEASE_IT_WORKSPACES_OTP: otp.value ?? '',
+          RELEASE_IT_WORKSPACES_DRY_RUN: String(this.config.isDryRun),
+          ...process.env,
+        };
+        await execaCommand(publishCommand, { env, stdio: 'inherit' });
+      }
 
       workspaceInfo.isReleased = true;
     } catch (err) {
