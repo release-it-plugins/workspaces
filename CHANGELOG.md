@@ -7,6 +7,16 @@
 
 
 
+
+## v5.0.2 (2025-06-19)
+
+#### :bug: Bug Fix
+* [#128](https://github.com/release-it-plugins/workspaces/pull/128) Ensure `pnpm` is logged in before doing a release ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+
 ## v5.0.1 (2025-06-19)
 
 #### :bug: Bug Fix
