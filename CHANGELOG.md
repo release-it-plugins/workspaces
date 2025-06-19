@@ -6,6 +6,16 @@
 
 
 
+
+## v5.0.1 (2025-06-19)
+
+#### :bug: Bug Fix
+* [#127](https://github.com/release-it-plugins/workspaces/pull/127) Fix `pnpm` publishing (and `publishCommand` configuration) ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+
 ## v5.0.0 (2025-06-18)
 
 #### :boom: Breaking Change
