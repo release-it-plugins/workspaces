@@ -82,17 +82,20 @@ interface ReleaseItWorkSpacesConfiguration {
   publish?: boolean;
 
   /**
-    Custom command used to publish each workspace. Supports
-    [`lodash`-style templates](https://lodash.com/docs/#template) with the following context:
+    Path to a custom script used to publish each workspace. The script is
+    executed with a number of environment variables set so that it can perform
+    the publish however desired.
 
-    - `pathToWorkspace`: relative path to the workspace
-    - `tag`: the npm dist-tag being published
-    - `access`: access level (public/private)
-    - `otp`: one-time password for 2FA
-    - `dryRun`: boolean indicating a dry run
+    The following environment variables will be provided:
 
-    Defaults to a command appropriate for the detected package manager
-    (`npm` or `pnpm`).
+    - `RELEASE_IT_WORKSPACES_PATH_TO_WORKSPACE`: relative path to the workspace
+    - `RELEASE_IT_WORKSPACES_TAG`: the npm dist-tag being published
+    - `RELEASE_IT_WORKSPACES_ACCESS`: access level (public/private)
+    - `RELEASE_IT_WORKSPACES_OTP`: one-time password for 2FA
+    - `RELEASE_IT_WORKSPACES_DRY_RUN`: boolean indicating a dry run
+
+    When omitted, an appropriate `npm` or `pnpm` command is executed
+    automatically.
   */
   publishCommand?: string;
 
@@ -175,35 +178,27 @@ published.
 
 ### publishCommand
 
-Customize the command used to publish each workspace. The command string may
-use [`lodash`-style templates](https://lodash.com/docs/#template). The following variables are available:
+Provide a path to a custom script that is executed for each workspace instead of
+running `npm publish` or `pnpm publish`. The script receives environment
+variables describing the workspace being published.
 
-- `pathToWorkspace`
-- `tag`
-- `access`
-- `otp`
-- `dryRun`
+The environment variables provided are:
 
-When omitted, a default command is chosen based on the detected package manager.
+- `RELEASE_IT_WORKSPACES_PATH_TO_WORKSPACE`
+- `RELEASE_IT_WORKSPACES_TAG`
+- `RELEASE_IT_WORKSPACES_ACCESS`
+- `RELEASE_IT_WORKSPACES_OTP`
+- `RELEASE_IT_WORKSPACES_DRY_RUN`
 
-Default `npm` command:
-
-```
-npm publish <%= pathToWorkspace %> --tag <%= tag %><%= access ? ' --access ' + access : '' %><%= otp ? ' --otp ' + otp : '' %><%= dryRun ? ' --dry-run' : '' %>
-```
-
-Default `pnpm` command:
-
-```
-pnpm publish <%= pathToWorkspace %> --tag <%= tag %><%= access ? ' --access ' + access : '' %><%= otp ? ' --otp ' + otp : '' %><%= dryRun ? ' --dry-run' : '' %>
-```
+When `publishCommand` is omitted, an appropriate `npm` or `pnpm` command is
+executed automatically.
 
 ```json
 {
   "release-it": {
     "plugins": {
       "@release-it-plugins/workspaces": {
-        "publishCommand": "pnpm publish <%= pathToWorkspace %> --tag <%= tag %>"
+        "publishCommand": "node publish.js"
       }
     }
   }
