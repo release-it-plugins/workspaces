@@ -8,6 +8,16 @@
 
 
 
+
+## v5.0.3 (2025-06-20)
+
+#### :bug: Bug Fix
+* [#129](https://github.com/release-it-plugins/workspaces/pull/129) Fix dependency version support to allow any comparison operators (e.g. `>=`) ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+#### Committers: 1
+- Robert Jackson ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+
 ## v5.0.2 (2025-06-19)
 
 #### :bug: Bug Fix
