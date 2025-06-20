@@ -331,7 +331,6 @@ export default class WorkspacesPlugin extends Plugin {
 
   _buildReplacementDepencencyVersion(existingVersion, newVersion) {
     let prefix = '';
-    let firstChar = '';
     let range = existingVersion;
     let suffix = newVersion;
 
@@ -343,16 +342,13 @@ export default class WorkspacesPlugin extends Plugin {
       suffix = range.length > 1 ? newVersion : '';
     }
 
-    // preserve existing floating constraint
-    if (['^', '~'].includes(range[0])) {
-      firstChar = range[0];
-    }
-
+    // capture any leading characters up to the first digit
+    const operator = range.match(/^[^0-9]*/)[0];
     if ('*' === range) {
       return `${prefix}*`;
     }
 
-    return `${prefix}${firstChar}${suffix}`;
+    return `${prefix}${operator}${suffix}`;
   }
 
   _updateDependencies(pkgInfo, newVersion) {
