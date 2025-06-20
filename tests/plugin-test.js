@@ -1868,5 +1868,6 @@ describe('@release-it-plugins/workspaces', () => {
     updatesTo({ existing: 'workspace:^', new: '2.0.0', expected: 'workspace:^' });
     updatesTo({ existing: 'workspace:~', new: '2.0.0', expected: 'workspace:~' });
     updatesTo({ existing: 'workspace:*', new: '2.0.0', expected: 'workspace:*' });
+    updatesTo({ existing: '>=1.0.0', new: '1.0.1', expected: '>=1.0.1' });
   });
 });
