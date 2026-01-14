@@ -51,6 +51,10 @@ function hasPnpm() {
   return fs.existsSync('./pnpm-lock.yaml') || fs.existsSync(PNPM_WORKSPACE_PATH);
 }
 
+function hasNpmLockfile() {
+  return fs.existsSync('./package-lock.json');
+}
+
 function resolveWorkspaces(workspaces) {
   if (Array.isArray(workspaces)) {
     return workspaces;
@@ -293,6 +297,8 @@ export default class WorkspacesPlugin extends Plugin {
        */
       if (hasPnpm()) {
         await this.exec(`pnpm install`);
+      } else if (hasNpmLockfile()) {
+        await this.exec(`npm install --package-lock-only`);
       }
     };
 
