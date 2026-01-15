@@ -423,6 +423,25 @@ describe('@release-it-plugins/workspaces', () => {
       expect(readWorkspacePackage('foo').version).toEqual('1.0.1');
     });
 
+    it('updates npm lockfile when present', async () => {
+      dir.write({
+        'package-lock.json': json({
+          name: 'root',
+          version: '0.0.0',
+          lockfileVersion: 3,
+          packages: {},
+        }),
+      });
+
+      let plugin = await buildPlugin();
+
+      await runTasks(plugin);
+
+      expect(
+        plugin.commands.some((operation) => operation.command === 'npm install --package-lock-only')
+      ).toBe(true);
+    });
+
     it('updates dependencies / devDependencies of packages', async () => {
       setupWorkspace({ name: 'derp' });
       setupWorkspace({ name: 'qux' });
