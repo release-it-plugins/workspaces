@@ -24,6 +24,7 @@ const DEFAULT_TAG = 'latest';
 const NPM_BASE_URL = 'https://www.npmjs.com';
 const NPM_DEFAULT_REGISTRY = 'https://registry.npmjs.org';
 const DETECT_TRAILING_WHITESPACE = /\s+$/;
+const NPM_PUBLIC_PATH = '/package';
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -438,11 +439,17 @@ export default class WorkspacesPlugin extends Plugin {
     }
   }
 
+  getPublicPath() {
+    const { publishConfig } = this.getContext();
+    return (publishConfig && publishConfig.publicPath) ?? '';
+  }
+
   getReleaseUrl(workspaceInfo) {
     const registry = this.getRegistry();
     const baseUrl = registry !== NPM_DEFAULT_REGISTRY ? registry : NPM_BASE_URL;
+    const publicPath = this.getPublicPath() || NPM_PUBLIC_PATH;
 
-    return urlJoin(baseUrl, 'package', workspaceInfo.name);
+    return urlJoin(baseUrl, publicPath, workspaceInfo.name);
   }
 
   getRegistry() {
