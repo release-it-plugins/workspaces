@@ -16,13 +16,7 @@ class TestPlugin extends Plugin {
     this.commands = [];
     this.prompts = [];
     this.logs = [];
-  }
-
-  // warnings (e.g. invalid `npm` config detection) can be emitted during
-  // construction, before `buildPlugin` has a chance to swap out the log
-  // methods, so read them straight from the underlying `log.warn` mock
-  get warnings() {
-    return this.log.warn.mock.calls.map((call) => call.arguments);
+    this.warnings = [];
   }
 }
 
@@ -47,6 +41,9 @@ async function buildPlugin(config = {}, _Plugin = TestPlugin, topLevelOptions = 
       operationType: 'log.exec',
       messages: args,
     });
+  };
+  plugin.log.warn = (...args) => {
+    plugin.warnings.push(args);
   };
 
   plugin.commandResponses = commandResponses;
@@ -1454,7 +1451,9 @@ describe('@release-it-plugins/workspaces', () => {
     });
 
     it('warns when the built-in `npm` plugin is left enabled (default config)', async () => {
-      let plugin = await buildPlugin();
+      let plugin = await buildPlugin({ skipChecks: true });
+
+      await plugin.init();
 
       expect(plugin.warnings).toMatchInlineSnapshot(`
         [
@@ -1466,7 +1465,9 @@ describe('@release-it-plugins/workspaces', () => {
     });
 
     it('warns when the built-in `npm` plugin is only partially disabled with `npm: { publish: false }`', async () => {
-      let plugin = await buildPlugin({}, TestPlugin, { npm: { publish: false } });
+      let plugin = await buildPlugin({ skipChecks: true }, TestPlugin, { npm: { publish: false } });
+
+      await plugin.init();
 
       expect(plugin.warnings).toMatchInlineSnapshot(`
         [
@@ -1478,7 +1479,9 @@ describe('@release-it-plugins/workspaces', () => {
     });
 
     it('does not warn when the built-in `npm` plugin is fully disabled with `npm: false`', async () => {
-      let plugin = await buildPlugin({}, TestPlugin, { npm: false });
+      let plugin = await buildPlugin({ skipChecks: true }, TestPlugin, { npm: false });
+
+      await plugin.init();
 
       expect(plugin.warnings).toEqual([]);
     });
