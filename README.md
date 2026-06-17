@@ -251,6 +251,35 @@ This value replaces the value from `package.json`, and given the above
 configuration `@release-it-plugins/workspaces` would publish each package (that was
 not private) in `dist/packages` folder.
 
+### publishPath
+
+Unlike the options above, `publishPath` is not configured under the
+`@release-it-plugins/workspaces` plugin. Instead, it is set directly on an
+individual workspace's `package.json`. When present, that workspace is published
+from the specified subdirectory (relative to the package root) rather than from
+the package root itself.
+
+This is useful when a build step emits a ready-to-publish package into a
+subfolder (e.g. `dist`) and you only want the contents of that folder to be
+published:
+
+```json
+{
+  "name": "my-package",
+  "version": "1.0.0",
+  "publishPath": "dist"
+}
+```
+
+With this configuration, `@release-it-plugins/workspaces` runs the publish
+command from `my-package/dist` (e.g. `npm publish ./packages/my-package/dist`).
+
+Note that the version bump is still written to the workspace's own
+`package.json` (`my-package/package.json`), not to the `publishPath` directory.
+Your build step is responsible for ensuring the published folder contains an
+up-to-date `package.json` (most build tooling copies it into `dist` as part of
+the build).
+
 ### additionalManifests
 
 #### versionUpdates
