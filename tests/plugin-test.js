@@ -17,14 +17,21 @@ class TestPlugin extends Plugin {
     this.prompts = [];
     this.logs = [];
   }
+
+  // warnings (e.g. invalid `npm` config detection) can be emitted during
+  // construction, before `buildPlugin` has a chance to swap out the log
+  // methods, so read them straight from the underlying `log.warn` mock
+  get warnings() {
+    return this.log.warn.mock.calls.map((call) => call.arguments);
+  }
 }
 
-async function buildPlugin(config = {}, _Plugin = TestPlugin) {
+async function buildPlugin(config = {}, _Plugin = TestPlugin, topLevelOptions = {}) {
   const container = {};
   const commandResponses = {};
   const promptResponses = {};
 
-  const options = { [namespace]: config };
+  const options = { ...topLevelOptions, [namespace]: config };
   const plugin = await factory(_Plugin, { container, namespace, options });
 
   plugin.log.log = (...args) => {
@@ -1409,6 +1416,44 @@ describe('@release-it-plugins/workspaces', () => {
           },
         ]
       `);
+    });
+  });
+
+  describe("detecting release-it's built-in `npm` plugin", () => {
+    beforeEach(() => {
+      setupProject(['packages/*']);
+      setupWorkspace({ name: 'foo' });
+      setupWorkspace({ name: 'bar' });
+    });
+
+    it('warns when the built-in `npm` plugin is left enabled (default config)', async () => {
+      let plugin = await buildPlugin();
+
+      expect(plugin.warnings).toMatchInlineSnapshot(`
+        [
+          [
+            "@release-it-plugins/workspaces replaces release-it's built-in \`npm\` plugin, but it is still enabled. Add \`"npm": false\` to your release-it config to disable it (\`npm: { publish: false }\` is not sufficient).",
+          ],
+        ]
+      `);
+    });
+
+    it('warns when the built-in `npm` plugin is only partially disabled with `npm: { publish: false }`', async () => {
+      let plugin = await buildPlugin({}, TestPlugin, { npm: { publish: false } });
+
+      expect(plugin.warnings).toMatchInlineSnapshot(`
+        [
+          [
+            "@release-it-plugins/workspaces replaces release-it's built-in \`npm\` plugin, but it is still enabled. Add \`"npm": false\` to your release-it config to disable it (\`npm: { publish: false }\` is not sufficient).",
+          ],
+        ]
+      `);
+    });
+
+    it('does not warn when the built-in `npm` plugin is fully disabled with `npm: false`', async () => {
+      let plugin = await buildPlugin({}, TestPlugin, { npm: false });
+
+      expect(plugin.warnings).toEqual([]);
     });
   });
 
