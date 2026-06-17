@@ -19,8 +19,8 @@
   "scripts": {
     "lint:js": "eslint .",
     "test": "npm-run-all lint:js test:vitest",
-    "test:watch": "vitest --no-threads",
-    "test:vitest": "vitest run --no-threads"
+    "test:watch": "vitest",
+    "test:vitest": "vitest run"
   },
   "husky": {
     "hooks": {
@@ -55,7 +55,7 @@
     "release-it": "^19.0.0",
     "sinon": "^9.2.4",
     "tmp": "^0.2.3",
-    "vitest": "^0.34.6"
+    "vitest": "^4.1.9"
   },
   "peerDependencies": {
     "release-it": "^17.0.0 || ^18.0.0 || ^19.0.0"
