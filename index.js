@@ -173,8 +173,6 @@ export default class WorkspacesPlugin extends Plugin {
       },
     });
 
-    this._warnIfBuiltinNpmEnabled();
-
     const { publishConfig, workspaces } = discoverWorkspaces();
 
     this.setContext({
@@ -202,6 +200,8 @@ export default class WorkspacesPlugin extends Plugin {
   }
 
   async init() {
+    this._warnIfBuiltinNpmEnabled();
+
     if (this.options.skipChecks) return;
 
     const validations = Promise.all([this.isRegistryUp(), this.isAuthenticated()]);
