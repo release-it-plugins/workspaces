@@ -1818,9 +1818,9 @@ describe('@release-it-plugins/workspaces', () => {
 
         expect(dir.readText('packages/foo/package.json')).toMatchInlineSnapshot(`
           "{
-               \\"name\\": \\"foo\\",
-               \\"version\\": \\"1.0.0\\",
-               \\"thing\\": true
+               "name": "foo",
+               "version": "1.0.0",
+               "thing": true
           }"
         `);
       });
@@ -1853,9 +1853,9 @@ describe('@release-it-plugins/workspaces', () => {
 
         expect(dir.readText('packages/foo/package.json')).toMatchInlineSnapshot(`
           "{
-            \\"name\\": \\"foo\\",
-            \\"version\\": \\"1.0.0\\",
-            \\"thing\\": true
+            "name": "foo",
+            "version": "1.0.0",
+            "thing": true
           }
           "
         `);
