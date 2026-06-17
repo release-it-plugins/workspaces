@@ -40,11 +40,18 @@ For example, configuring via `package.json` would look like this:
 }
 ```
 
-Often times the root `package.json` for a workspace setup is commonly not
-published, in order to configure `release-it` to avoid attempting to publish
-the top level package (in addition to publishing your workspace packages), you
-would add the following to your `release-it` config (again showing
-`package.json` style configuration):
+This plugin fully replaces `release-it`'s built-in `npm` plugin (it handles
+both version bumping and publishing for each workspace). You should therefore
+disable the built-in `npm` plugin by setting `npm` to `false`. If you leave it
+enabled, `release-it` will _also_ run `npm version` and attempt to `npm publish`
+the root `package.json`, which conflicts with this plugin and produces confusing
+errors. The plugin will emit a warning if it detects that the built-in `npm`
+plugin has not been fully disabled.
+
+> [!IMPORTANT]
+> `"npm": false` is the only way to fully disable the built-in plugin. Setting
+> `npm: { publish: false }` is **not** sufficient — `release-it` will still run
+> `npm version` against the root package.
 
 ```json
 {
@@ -56,6 +63,13 @@ would add the following to your `release-it` config (again showing
   }
 }
 ```
+
+> [!NOTE]
+> When configuring via TypeScript with `satisfies Config`, `release-it`'s
+> exported `Config` type does not currently model the `npm: false` form, so
+> TypeScript will reject it even though it is valid at runtime. Use a type
+> assertion (e.g. `npm: false as never`) or configure via JSON/JS to work
+> around this.
 
 ## Configuration
 
