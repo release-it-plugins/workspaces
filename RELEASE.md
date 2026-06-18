@@ -34,8 +34,8 @@ Once the prep work is completed, the actual release is straight forward:
   using one of the following commands:
 
 ```
-# using https://volta.sh
-volta install release-it
+# using https://mise.jdx.dev
+mise use -g "npm:release-it"
 
 # using Yarn
 yarn global add release-it
