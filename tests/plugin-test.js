@@ -16,15 +16,16 @@ class TestPlugin extends Plugin {
     this.commands = [];
     this.prompts = [];
     this.logs = [];
+    this.warnings = [];
   }
 }
 
-async function buildPlugin(config = {}, _Plugin = TestPlugin) {
+async function buildPlugin(config = {}, _Plugin = TestPlugin, topLevelOptions = {}) {
   const container = {};
   const commandResponses = {};
   const promptResponses = {};
 
-  const options = { [namespace]: config };
+  const options = { ...topLevelOptions, [namespace]: config };
   const plugin = await factory(_Plugin, { container, namespace, options });
 
   plugin.log.log = (...args) => {
@@ -40,6 +41,9 @@ async function buildPlugin(config = {}, _Plugin = TestPlugin) {
       operationType: 'log.exec',
       messages: args,
     });
+  };
+  plugin.log.warn = (...args) => {
+    plugin.warnings.push(args);
   };
 
   plugin.commandResponses = commandResponses;
@@ -1439,6 +1443,50 @@ describe('@release-it-plugins/workspaces', () => {
     });
   });
 
+  describe("detecting release-it's built-in `npm` plugin", () => {
+    beforeEach(() => {
+      setupProject(['packages/*']);
+      setupWorkspace({ name: 'foo' });
+      setupWorkspace({ name: 'bar' });
+    });
+
+    it('warns when the built-in `npm` plugin is left enabled (default config)', async () => {
+      let plugin = await buildPlugin({ skipChecks: true });
+
+      await plugin.init();
+
+      expect(plugin.warnings).toMatchInlineSnapshot(`
+        [
+          [
+            "@release-it-plugins/workspaces replaces release-it's built-in \`npm\` plugin, but it is still enabled. Add \`"npm": false\` to your release-it config to disable it (\`npm: { publish: false }\` is not sufficient).",
+          ],
+        ]
+      `);
+    });
+
+    it('warns when the built-in `npm` plugin is only partially disabled with `npm: { publish: false }`', async () => {
+      let plugin = await buildPlugin({ skipChecks: true }, TestPlugin, { npm: { publish: false } });
+
+      await plugin.init();
+
+      expect(plugin.warnings).toMatchInlineSnapshot(`
+        [
+          [
+            "@release-it-plugins/workspaces replaces release-it's built-in \`npm\` plugin, but it is still enabled. Add \`"npm": false\` to your release-it config to disable it (\`npm: { publish: false }\` is not sufficient).",
+          ],
+        ]
+      `);
+    });
+
+    it('does not warn when the built-in `npm` plugin is fully disabled with `npm: false`', async () => {
+      let plugin = await buildPlugin({ skipChecks: true }, TestPlugin, { npm: false });
+
+      await plugin.init();
+
+      expect(plugin.warnings).toEqual([]);
+    });
+  });
+
   describe('acceptance', () => {
     it('runs pnpm install to update lockfile *after* updating versions', async () => {
       setupPnpmWorkspace(['packages/*']);
@@ -1845,9 +1893,9 @@ describe('@release-it-plugins/workspaces', () => {
 
         expect(dir.readText('packages/foo/package.json')).toMatchInlineSnapshot(`
           "{
-               \\"name\\": \\"foo\\",
-               \\"version\\": \\"1.0.0\\",
-               \\"thing\\": true
+               "name": "foo",
+               "version": "1.0.0",
+               "thing": true
           }"
         `);
       });
@@ -1880,9 +1928,9 @@ describe('@release-it-plugins/workspaces', () => {
 
         expect(dir.readText('packages/foo/package.json')).toMatchInlineSnapshot(`
           "{
-            \\"name\\": \\"foo\\",
-            \\"version\\": \\"1.0.0\\",
-            \\"thing\\": true
+            "name": "foo",
+            "version": "1.0.0",
+            "thing": true
           }
           "
         `);

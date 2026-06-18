@@ -182,7 +182,26 @@ export default class WorkspacesPlugin extends Plugin {
     });
   }
 
+  // This plugin fully replaces release-it's built-in `npm` plugin (it handles
+  // version bumping and publishing for each workspace). Leaving the built-in
+  // `npm` plugin enabled means release-it will _also_ run `npm version` and
+  // attempt to `npm publish` the root package, which conflicts with this
+  // plugin and produces confusing errors. The only way to fully disable it is
+  // `npm: false`; `npm: { publish: false }` is not enough (it still runs
+  // `npm version`). See https://github.com/release-it-plugins/workspaces/issues/125
+  // and https://github.com/release-it-plugins/workspaces/issues/132.
+  _warnIfBuiltinNpmEnabled() {
+    if (this.config.getContext('npm') !== false) {
+      this.log.warn(
+        `@release-it-plugins/workspaces replaces release-it's built-in \`npm\` plugin, but it is still enabled. ` +
+          `Add \`"npm": false\` to your release-it config to disable it (\`npm: { publish: false }\` is not sufficient).`
+      );
+    }
+  }
+
   async init() {
+    this._warnIfBuiltinNpmEnabled();
+
     if (this.options.skipChecks) return;
 
     const validations = Promise.all([this.isRegistryUp(), this.isAuthenticated()]);
