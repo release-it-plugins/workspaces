@@ -63,10 +63,6 @@
   "engines": {
     "node": ">= 20"
   },
-  "volta": {
-    "node": "20.19.2",
-    "npm": "9.8.0"
-  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"

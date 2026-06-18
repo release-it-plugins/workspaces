@@ -16,13 +16,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x, 22.x, 24.x]
+        node-version: [20, 22, 24]
+
+    env:
+      MISE_NODE_VERSION: ${{ matrix.node-version }}
 
     steps:
       - uses: actions/checkout@v3.0.2
-      - uses: volta-cli/action@v4
-        with:
-          node-version: ${{ matrix.node-version }}
+      - uses: jdx/mise-action@v4
       - name: install dependencies
         run: npm ci
       - run: npm test
@@ -39,7 +40,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3.0.2
-      - uses: volta-cli/action@v4
+      - uses: jdx/mise-action@v4
       - name: install dependencies
         run: npm ci
       - run: npm install --saveDev release-it@${{ matrix.release-it-version }}
