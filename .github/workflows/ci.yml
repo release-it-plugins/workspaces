@@ -10,16 +10,19 @@ on:
 
 jobs:
   build:
-    name: 'Node ${{ matrix.node-version }}'
+    name: 'Node ${{ matrix.node.name }}'
 
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [20, 22, 24]
+        node:
+          - { name: '20.x', version: '20' }
+          - { name: '22.x', version: '22' }
+          - { name: '24.x', version: '24' }
 
     env:
-      MISE_NODE_VERSION: ${{ matrix.node-version }}
+      MISE_NODE_VERSION: ${{ matrix.node.version }}
 
     steps:
       - uses: actions/checkout@v3.0.2
