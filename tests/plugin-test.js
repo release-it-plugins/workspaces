@@ -321,6 +321,33 @@ describe('@release-it-plugins/workspaces', () => {
       expect(readWorkspacePackage('foo').version).toEqual('1.0.1');
     });
 
+    it('publishes from the `publishPath` directory when specified', async () => {
+      setupProject(['packages/*']);
+
+      setupWorkspace({ name: 'foo' });
+      setupWorkspace({ name: 'bar', publishPath: 'dist' });
+
+      let plugin = await buildPlugin();
+
+      await runTasks(plugin);
+
+      let publishCommands = plugin.commands
+        .map((operation) => operation.command)
+        .filter((command) => command.startsWith('npm publish'));
+
+      expect(publishCommands).toMatchInlineSnapshot(`
+        [
+          "npm publish ./packages/bar/dist --tag latest",
+          "npm publish ./packages/foo --tag latest",
+        ]
+      `);
+
+      // the version bump is still written to the package's own package.json,
+      // not the publishPath directory
+      expect(readWorkspacePackage('bar').version).toEqual('1.0.1');
+      expect(readWorkspacePackage('foo').version).toEqual('1.0.1');
+    });
+
     it('works for pnpm', async () => {
       setupPnpmWorkspace(['packages/*']);
 
