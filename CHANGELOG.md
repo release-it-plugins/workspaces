@@ -9,6 +9,30 @@
 
 
 
+## v6.0.0 (2026-06-19)
+
+#### :boom: Breaking Change
+
+- [#156](https://github.com/release-it-plugins/workspaces/pull/156) Align Node support with release-it (engines ^20.9.0 || >=22.0.0) ([@scalvert](https://github.com/scalvert))
+
+#### :rocket: Enhancement
+
+- [#146](https://github.com/release-it-plugins/workspaces/pull/146) Add publishPath option to publish a workspace from a subfolder ([@scalvert](https://github.com/scalvert))
+- [#135](https://github.com/release-it-plugins/workspaces/pull/135) Update npm lockfile after version bump ([@rwjblue](https://github.com/rwjblue))
+
+#### :house: Internal
+
+- [#157](https://github.com/release-it-plugins/workspaces/pull/157) Remove husky and lint-staged ([@scalvert](https://github.com/scalvert))
+- [#155](https://github.com/release-it-plugins/workspaces/pull/155) Migrate from Volta to mise ([@scalvert](https://github.com/scalvert))
+- [#144](https://github.com/release-it-plugins/workspaces/pull/144) Migrate test toolchain to vitest 4 ([@scalvert](https://github.com/scalvert))
+
+#### Committers: 2
+
+- Robert Jackson ([@rwjblue](https://github.com/rwjblue))
+- Steve Calvert ([@scalvert](https://github.com/scalvert))
+
+
+
 ## v5.0.3 (2025-06-20)
 
 #### :bug: Bug Fix
