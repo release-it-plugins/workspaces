@@ -29,7 +29,7 @@
     "semver": "^7.7.2",
     "url-join": "^4.0.1",
     "validate-peer-dependencies": "^1.2.0",
-    "walk-sync": "^2.2.0",
+    "walk-sync": "^4.0.2",
     "yaml": "^2.8.0"
   },
   "devDependencies": {
@@ -49,6 +49,9 @@
   },
   "peerDependencies": {
     "release-it": "^17.0.0 || ^18.0.0 || ^19.0.0"
+  },
+  "overrides": {
+    "brace-expansion@<1.1.13": "^1.1.13"
   },
   "engines": {
     "node": "^20.9.0 || >=22.0.0"
